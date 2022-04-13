@@ -1,0 +1,63 @@
+{
+    "name": "php-class-generator",
+    "displayName": "PHP Class Generator",
+    "description": "Generate class/interface/trait out of file path",
+    "version": "0.0.1",
+    "publisher": "ctf0",
+    "engines": {
+        "vscode": "^1.34.0"
+    },
+    "categories": [
+        "Other"
+    ],
+    "activationEvents": [
+        "onCommand:phpclassgen.generate_class",
+        "onCommand:phpclassgen.generate_interface",
+        "onCommand:phpclassgen.generate_trait"
+    ],
+    "repository": "https://github.com/ctf0/vscode-php-class-generator",
+    "main": "./extension",
+    "contributes": {
+        "commands": [
+            {
+                "command": "phpclassgen.generate_class",
+                "title": "Generate PHP Class"
+            },
+            {
+                "command": "phpclassgen.generate_interface",
+                "title": "Generate PHP Interface"
+            },
+            {
+                "command": "phpclassgen.generate_trait",
+                "title": "Generate PHP Trait"
+            }
+        ],
+        "configuration": {
+            "type": "object",
+            "title": "PHP Class Generator",
+            "properties": {
+                "phpclassgen.vendor": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Specifies vendor which is applied before every namespace."
+                },
+                "phpclassgen.classType": {
+                    "type": "string",
+                    "default": null,
+                    "description": "Specifies generated class type ex.'abstract, final, normal (leave it empty)'"
+                }
+            }
+        }
+    },
+    "scripts": {
+        "postinstall": "node ./node_modules/vscode/bin/install",
+        "test": "node ./node_modules/vscode/bin/test"
+    },
+    "devDependencies": {
+        "typescript": "^3.3.1",
+        "vscode": "^1.1.28",
+        "eslint": "^5.13.0",
+        "@types/node": "^10.12.21",
+        "@types/mocha": "^2.2.42"
+    }
+}
