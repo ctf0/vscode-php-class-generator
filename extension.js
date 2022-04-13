@@ -2,7 +2,6 @@ const vscode = require('vscode');
 
 let utils = require('./utils');
 
-let nsVendor = ''
 let classType = ''
 const PACKAGE_NAME = 'phpclassgen'
 
@@ -18,53 +17,62 @@ async function activate(context) {
 
     /* Commands ----------------------------------------------------------------- */
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_class`, function () {
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_class`, async function () {
             let editor = vscode.window.activeTextEditor;
             let path = editor.document.fileName;
 
-            editor.edit(eb => {
+            await editor.edit(eb => {
                 eb.replace(
                     new vscode.Position(editor.selection.active.line, 0),
-                    utils.generateCode(path, "class", nsVendor, classType)
+                    utils.generateCode(path, "class", classType)
                 );
             })
+
+            resolveNamespace();
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_interface`, function () {
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_interface`, async function () {
             let editor = vscode.window.activeTextEditor;
             let path = editor.document.fileName;
 
-            editor.edit(eb => {
+            await editor.edit(eb => {
                 eb.replace(
                     new vscode.Position(editor.selection.active.line, 0),
-                    utils.generateCode(path, "interface", nsVendor)
+                    utils.generateCode(path, "interface")
                 );
             })
+
+            resolveNamespace();
         })
     )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_trait`, function () {
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_trait`, async function () {
             let editor = vscode.window.activeTextEditor;
             let path = editor.document.fileName;
 
-            editor.edit(eb => {
+            await editor.edit(eb => {
                 eb.replace(
                     new vscode.Position(editor.selection.active.line, 0),
-                    utils.generateCode(path, "trait", nsVendor)
+                    utils.generateCode(path, "trait")
                 );
             })
+
+            resolveNamespace();
         })
     )
 }
 exports.activate = activate;
 
+function resolveNamespace() {
+    vscode.commands.executeCommand('namespaceResolver.generateNamespace');
+}
+
 function readConfig() {
     let config = vscode.workspace.getConfiguration(PACKAGE_NAME);
 
-    nsVendor = config.get('vendor');
     classType = config.get('classType');
 }
 
