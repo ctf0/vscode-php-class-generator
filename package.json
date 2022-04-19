@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait out of file path",
-    "version": "0.0.2",
+    "version": "0.0.3",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.34.0"
@@ -11,13 +11,54 @@
         "Other"
     ],
     "activationEvents": [
-        "onCommand:phpclassgen.generate_class",
-        "onCommand:phpclassgen.generate_interface",
-        "onCommand:phpclassgen.generate_trait"
+        "workspaceContains:composer.json",
+        "onLanguage:php"
     ],
     "repository": "https://github.com/ctf0/vscode-php-class-generator",
     "main": "./extension",
     "contributes": {
+        "menus": {
+            "explorer/context": [
+                {
+                    "command": "phpclassgen.generate_class",
+                    "when": "explorerResourceIsFolder",
+                    "group": "phpclassgen"
+                },
+                {
+                    "command": "phpclassgen.generate_interface",
+                    "when": "explorerResourceIsFolder",
+                    "group": "phpclassgen"
+                },
+                {
+                    "command": "phpclassgen.generate_trait",
+                    "when": "explorerResourceIsFolder",
+                    "group": "phpclassgen"
+                },
+                {
+                    "command": "phpclassgen.generate_enum",
+                    "when": "explorerResourceIsFolder",
+                    "group": "phpclassgen"
+                }
+            ],
+            "commandPalette": [
+                {
+                    "command": "phpclassgen.generate_class",
+                    "when": "editorIsOpen"
+                },
+                {
+                    "command": "phpclassgen.generate_interface",
+                    "when": "editorIsOpen"
+                },
+                {
+                    "command": "phpclassgen.generate_trait",
+                    "when": "editorIsOpen"
+                },
+                {
+                    "command": "phpclassgen.generate_enum",
+                    "when": "editorIsOpen"
+                }
+            ]
+        },
         "commands": [
             {
                 "command": "phpclassgen.generate_class",
@@ -30,23 +71,13 @@
             {
                 "command": "phpclassgen.generate_trait",
                 "title": "Generate PHP Trait"
+            },
+            {
+                "command": "phpclassgen.generate_enum",
+                "title": "Generate PHP Enum"
             }
-        ],
-        "configuration": {
-            "type": "object",
-            "title": "PHP Class Generator",
-            "properties": {
-                "phpclassgen.classType": {
-                    "type": "string",
-                    "default": null,
-                    "description": "Specifies generated class type ex.'abstract, final, normal (leave it empty)'"
-                }
-            }
-        }
+        ]
     },
-    "extensionDependencies": [
-        "ctf0.php-namespace-resolver"
-    ],
     "scripts": {
         "postinstall": "node ./node_modules/vscode/bin/install",
         "test": "node ./node_modules/vscode/bin/test"

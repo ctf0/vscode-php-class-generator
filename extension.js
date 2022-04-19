@@ -1,8 +1,7 @@
 const vscode = require('vscode');
 
-let utils = require('./utils');
+let utils = require('./src/utils');
 
-let classType = ''
 const PACKAGE_NAME = 'phpclassgen'
 
 async function activate(context) {
@@ -17,63 +16,49 @@ async function activate(context) {
 
     /* Commands ----------------------------------------------------------------- */
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_class`, async function () {
-            let editor = vscode.window.activeTextEditor;
-            let path = editor.document.fileName;
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_class`, async function (folder) {
+            if (folder?.path) {
+                await utils.createFile(folder.path, 'class')
+            }
 
-            await editor.edit(eb => {
-                eb.replace(
-                    new vscode.Position(editor.selection.active.line, 0),
-                    utils.generateCode(path, "class", classType)
-                );
-            })
-
-            resolveNamespace();
+            await utils.insertSnippet('class')
         })
     );
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_interface`, async function () {
-            let editor = vscode.window.activeTextEditor;
-            let path = editor.document.fileName;
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_interface`, async function (folder) {
+            if (folder?.path) {
+                await utils.createFile(folder.path, 'interface')
+            }
 
-            await editor.edit(eb => {
-                eb.replace(
-                    new vscode.Position(editor.selection.active.line, 0),
-                    utils.generateCode(path, "interface")
-                );
-            })
-
-            resolveNamespace();
+            await utils.insertSnippet('interface')
         })
     )
 
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_trait`, async function () {
-            let editor = vscode.window.activeTextEditor;
-            let path = editor.document.fileName;
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_trait`, async function (folder) {
+            if (folder?.path) {
+                await utils.createFile(folder.path, 'trait')
+            }
 
-            await editor.edit(eb => {
-                eb.replace(
-                    new vscode.Position(editor.selection.active.line, 0),
-                    utils.generateCode(path, "trait")
-                );
-            })
+            await utils.insertSnippet('trait')
+        })
+    )
 
-            resolveNamespace();
+    context.subscriptions.push(
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_enum`, async function (folder) {
+            if (folder.path) {
+                await utils.createFile(folder.path, 'enum')
+            }
+
+            await utils.insertSnippet('enum')
         })
     )
 }
 exports.activate = activate;
 
-function resolveNamespace() {
-    vscode.commands.executeCommand('namespaceResolver.generateNamespace');
-}
-
 function readConfig() {
     let config = vscode.workspace.getConfiguration(PACKAGE_NAME);
-
-    classType = config.get('classType');
 }
 
 function deactivate() { }
