@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait out of file path",
-    "version": "0.0.4",
+    "version": "0.0.5",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.34.0"

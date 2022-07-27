@@ -1,7 +1,7 @@
 const vscode = require('vscode');
 const path = require('path')
 const fs = require('fs')
-let Resolver = require('./Resolver');
+let Resolver = require('./NS-Resolver');
 
 function getClassNameFromPath(filePath) {
     return path.basename(filePath).replace(".php", "")
@@ -13,7 +13,7 @@ async function generateCode(filePath, prefix) {
     let declaration = `${prefix} ${cn}`
 
     if (prefix == 'class') {
-        declaration = `\${1|abstract ,final |}class ${cn}\${2: extends }`
+        declaration = `\${1|abstract ,final |}class ${cn}\${2: \${3|extends ,implements |}\$4}`
     }
 
     if (prefix == 'interface') {
@@ -26,7 +26,7 @@ async function generateCode(filePath, prefix) {
         '\n' +
         `${declaration}\n` +
         `{\n` +
-        '   $0' +
+        '$0' +
         `\n}`;
 }
 
@@ -57,7 +57,7 @@ async function createFile(path, type) {
 
     let fileName = `${path}/${name}.php`
 
-     if (fs.existsSync(fileName)) {
+    if (fs.existsSync(fileName)) {
         await openFile(fileName)
 
         return showMessage(`${name} already exists`, true)

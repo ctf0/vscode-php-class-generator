@@ -15,3 +15,8 @@
 - use snippets to give better usage flow
 - add enums
 - add explorer context menu option
+
+## 0.0.5
+
+- add interface option for class gen
+- remove the indentations from the last snippet tab
