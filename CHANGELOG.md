@@ -20,3 +20,8 @@
 
 - add interface option for class gen
 - remove the indentations from the last snippet tab
+
+## 0.0.6
+
+- fix `enum` creation error
+- update vscode

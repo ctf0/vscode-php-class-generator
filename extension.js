@@ -1,65 +1,27 @@
-const vscode = require('vscode');
+const vscode = require('vscode')
 
-let utils = require('./src/utils');
+let utils = require('./src/utils')
 
 const PACKAGE_NAME = 'phpclassgen'
 
 async function activate(context) {
-    /* Config ------------------------------------------------------------------- */
-    readConfig()
-
-    vscode.workspace.onDidChangeConfiguration(async (e) => {
-        if (e.affectsConfiguration(PACKAGE_NAME)) {
-            readConfig()
-        }
-    })
-
-    /* Commands ----------------------------------------------------------------- */
     context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_class`, async function (folder) {
-            if (folder?.path) {
-                await utils.createFile(folder.path, 'class')
-            }
-
-            await utils.insertSnippet('class')
-        })
-    );
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_interface`, async function (folder) {
-            if (folder?.path) {
-                await utils.createFile(folder.path, 'interface')
-            }
-
-            await utils.insertSnippet('interface')
-        })
-    )
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_trait`, async function (folder) {
-            if (folder?.path) {
-                await utils.createFile(folder.path, 'trait')
-            }
-
-            await utils.insertSnippet('trait')
-        })
-    )
-
-    context.subscriptions.push(
-        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_enum`, async function (folder) {
-            if (folder.path) {
-                await utils.createFile(folder.path, 'enum')
-            }
-
-            await utils.insertSnippet('enum')
-        })
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_class`, async (folder) => await createFile(folder, 'class')),
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_interface`, async (folder) => await createFile(folder, 'interface')),
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_trait`, async (folder) => await createFile(folder, 'trait')),
+        vscode.commands.registerCommand(`${PACKAGE_NAME}.generate_enum`, async (folder) => await createFile(folder, 'enum'))
     )
 }
-exports.activate = activate;
+exports.activate = activate
 
-function readConfig() {
-    let config = vscode.workspace.getConfiguration(PACKAGE_NAME);
+async function createFile(folder, type)
+{
+    if (folder?.path) {
+        await utils.createFile(folder.path, type)
+    }
+
+    await utils.insertSnippet(type)
 }
 
 function deactivate() { }
-exports.deactivate = deactivate;
+exports.deactivate = deactivate

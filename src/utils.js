@@ -1,15 +1,15 @@
-const vscode = require('vscode');
-const path = require('path')
-const fs = require('fs')
-let Resolver = require('./NS-Resolver');
+const vscode = require('vscode')
+const path   = require('path')
+const fs     = require('fs')
+let Resolver = require('./NS-Resolver')
 
 function getClassNameFromPath(filePath) {
-    return path.basename(filePath).replace(".php", "")
+    return path.basename(filePath).replace('.php', '')
 }
 
 async function generateCode(filePath, prefix) {
-    let cn = getClassNameFromPath(filePath)
-    let ns = await new Resolver().generateNamespace()
+    let cn          = getClassNameFromPath(filePath)
+    let ns          = await new Resolver().generateNamespace()
     let declaration = `${prefix} ${cn}`
 
     if (prefix == 'class') {
@@ -20,33 +20,33 @@ async function generateCode(filePath, prefix) {
         declaration = `${prefix} ${cn}\${2: extends }`
     }
 
-    return `<?php\n` +
+    return '<?php\n' +
         '\n' +
         `${ns}\n` +
         '\n' +
         `${declaration}\n` +
-        `{\n` +
+        '{\n' +
         '$0' +
-        `\n}`;
+        '\n}'
 }
 
 async function insertSnippet(type)
 {
-    let editor = vscode.window.activeTextEditor;
-    let path = editor.document.fileName
+    let editor = vscode.window.activeTextEditor
+    let path   = editor.document.fileName
 
     return editor.insertSnippet(
         new vscode.SnippetString(await generateCode(path, type)),
         new vscode.Position(0, 0)
-    );
+    )
 }
 
 async function createFile(path, type) {
     type = type.charAt(0).toUpperCase() + type.slice(1)
 
     let name = await vscode.window.showInputBox({
-        placeHolder: `Name ex.MyNew${type}`,
-        prompt: `Name of ${type}`
+        placeHolder : `Name ex.MyNew${type}`,
+        prompt      : `Name of ${type}`
     })
 
     if (!name) {

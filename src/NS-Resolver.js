@@ -43,7 +43,7 @@ class Resolver {
 
         composerFile = composerFile.pop().path
 
-        let document = await vscode.workspace.openTextDocument(composerFile)
+        let document     = await vscode.workspace.openTextDocument(composerFile)
         let composerJson = JSON.parse(document.getText())
         let psr4         = (composerJson.autoload || {})['psr-4']
 
