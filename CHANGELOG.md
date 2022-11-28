@@ -25,3 +25,8 @@
 
 - fix `enum` creation error
 - update vscode
+
+## 0.1.0
+
+- make sure class name is titlecased
+- add `ctf0.php-namespace-resolver` as dependency and use it

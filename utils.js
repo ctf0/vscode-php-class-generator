@@ -1,15 +1,14 @@
-const vscode = require('vscode')
-const path   = require('path')
-const fs     = require('fs')
-let Resolver = require('./NS-Resolver')
+const vscode      = require('vscode')
+const path        = require('path')
+const fs          = require('fs')
+const toTitleCase = require('titlecase')
 
 function getClassNameFromPath(filePath) {
     return path.basename(filePath).replace('.php', '')
 }
 
 async function generateCode(filePath, prefix) {
-    let cn          = getClassNameFromPath(filePath)
-    let ns          = await new Resolver().generateNamespace()
+    let cn          = toTitleCase(getClassNameFromPath(filePath))
     let declaration = `${prefix} ${cn}`
 
     if (prefix == 'class') {
@@ -22,11 +21,9 @@ async function generateCode(filePath, prefix) {
 
     return '<?php\n' +
         '\n' +
-        `${ns}\n` +
-        '\n' +
         `${declaration}\n` +
         '{\n' +
-        '$0' +
+        '  $0' +
         '\n}'
 }
 
@@ -35,10 +32,12 @@ async function insertSnippet(type)
     let editor = vscode.window.activeTextEditor
     let path   = editor.document.fileName
 
-    return editor.insertSnippet(
+    await editor.insertSnippet(
         new vscode.SnippetString(await generateCode(path, type)),
         new vscode.Position(0, 0)
     )
+
+    await vscode.commands.executeCommand('namespaceResolver.generateNamespace')
 }
 
 async function createFile(path, type) {

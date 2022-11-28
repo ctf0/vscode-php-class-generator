@@ -1,6 +1,6 @@
 const vscode = require('vscode')
 
-let utils = require('./src/utils')
+let utils = require('./utils')
 
 const PACKAGE_NAME = 'phpclassgen'
 
