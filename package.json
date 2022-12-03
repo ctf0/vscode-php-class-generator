@@ -1,8 +1,8 @@
 {
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
-    "description": "Generate class/interface/trait out of file path",
-    "version": "0.1.0",
+    "description": "Generate class/interface/trait/enum out of file path",
+    "version": "0.1.1",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -15,7 +15,7 @@
         "onLanguage:php"
     ],
     "repository": "https://github.com/ctf0/vscode-php-class-generator",
-    "main": "./extension",
+    "main": "./src/extension",
     "contributes": {
         "menus": {
             "explorer/context": [
@@ -43,38 +43,42 @@
             "commandPalette": [
                 {
                     "command": "phpclassgen.generate_class",
-                    "when": "editorIsOpen"
+                    "when": "editorLangId == php"
                 },
                 {
                     "command": "phpclassgen.generate_interface",
-                    "when": "editorIsOpen"
+                    "when": "editorLangId == php"
                 },
                 {
                     "command": "phpclassgen.generate_trait",
-                    "when": "editorIsOpen"
+                    "when": "editorLangId == php"
                 },
                 {
                     "command": "phpclassgen.generate_enum",
-                    "when": "editorIsOpen"
+                    "when": "editorLangId == php"
                 }
             ]
         },
         "commands": [
             {
                 "command": "phpclassgen.generate_class",
-                "title": "Generate PHP Class"
+                "title": "Generate PHP Class",
+                "category": "PHP Class Generator"
             },
             {
                 "command": "phpclassgen.generate_interface",
-                "title": "Generate PHP Interface"
+                "title": "Generate PHP Interface",
+                "category": "PHP Class Generator"
             },
             {
                 "command": "phpclassgen.generate_trait",
-                "title": "Generate PHP Trait"
+                "title": "Generate PHP Trait",
+                "category": "PHP Class Generator"
             },
             {
                 "command": "phpclassgen.generate_enum",
-                "title": "Generate PHP Enum"
+                "title": "Generate PHP Enum",
+                "category": "PHP Class Generator"
             }
         ]
     },

@@ -30,3 +30,10 @@
 
 - make sure class name is titlecased
 - add `ctf0.php-namespace-resolver` as dependency and use it
+
+## 0.1.1
+
+- make sure file name is titlecased
+- make sure commands only show up in php files only
+- correctly insert the namespace without canceling snippet operation
+- prefix commands with pkg name

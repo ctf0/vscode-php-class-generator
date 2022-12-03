@@ -3,12 +3,16 @@ const path        = require('path')
 const fs          = require('fs')
 const toTitleCase = require('titlecase')
 
+const PACKAGE_NAME = 'phpclassgen'
+let NS_EXTENSION_PROVIDER
+
 function getClassNameFromPath(filePath) {
     return path.basename(filePath).replace('.php', '')
 }
 
 async function generateCode(filePath, prefix) {
     let cn          = toTitleCase(getClassNameFromPath(filePath))
+    let ns          = await NS_EXTENSION_PROVIDER.getNamespace()
     let declaration = `${prefix} ${cn}`
 
     if (prefix == 'class') {
@@ -20,6 +24,7 @@ async function generateCode(filePath, prefix) {
     }
 
     return '<?php\n' +
+        ns +
         '\n' +
         `${declaration}\n` +
         '{\n' +
@@ -32,16 +37,14 @@ async function insertSnippet(type)
     let editor = vscode.window.activeTextEditor
     let path   = editor.document.fileName
 
-    await editor.insertSnippet(
+    return editor.insertSnippet(
         new vscode.SnippetString(await generateCode(path, type)),
         new vscode.Position(0, 0)
     )
-
-    await vscode.commands.executeCommand('namespaceResolver.generateNamespace')
 }
 
 async function createFile(path, type) {
-    type = type.charAt(0).toUpperCase() + type.slice(1)
+    type = toTitleCase(type)
 
     let name = await vscode.window.showInputBox({
         placeHolder : `Name ex.MyNew${type}`,
@@ -52,7 +55,7 @@ async function createFile(path, type) {
         return showMessage(`please add the name of the ${type}`)
     }
 
-    name = name.replace('.php', '')
+    name = toTitleCase(name.replace('.php', ''))
 
     let fileName = `${path}/${name}.php`
 
@@ -82,11 +85,21 @@ function showMessage(msg, error = false)
 async function openFile(fileName)
 {
     return vscode.window.showTextDocument(await vscode.workspace.openTextDocument(vscode.Uri.file(fileName)))
+}
 
+async function NsExtensionProviderInit() {
+    const nsResolverExtension = vscode.extensions.getExtension('ctf0.php-namespace-resolver')
+
+    if (nsResolverExtension == null) {
+        throw new Error('Depends on \'ctf0.php-namespace-resolver\' extension')
+    }
+
+    NS_EXTENSION_PROVIDER = await nsResolverExtension.activate()
 }
 
 module.exports = {
-    generateCode,
+    PACKAGE_NAME,
     insertSnippet,
-    createFile
+    createFile,
+    NsExtensionProviderInit
 }
