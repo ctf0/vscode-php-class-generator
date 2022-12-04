@@ -37,3 +37,9 @@
 - make sure commands only show up in php files only
 - correctly insert the namespace without canceling snippet operation
 - prefix commands with pkg name
+
+## 0.1.2
+
+- add cmnd to create test
+- make cmnds available in editor context menu
+- u can also create a test for a file by right click in explorer and choose `Generate PHP Test`
