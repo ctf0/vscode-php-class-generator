@@ -136,9 +136,9 @@ export function showMessage(msg, error = false)
         : vscode.window.showInformationMessage(`PHP Class Generator: ${msg}`)
 }
 
-async function openFile(fileName)
+export async function openFile(filePath)
 {
-    return vscode.window.showTextDocument(await vscode.workspace.openTextDocument(vscode.Uri.file(fileName)))
+    return vscode.window.showTextDocument(await vscode.workspace.openTextDocument(vscode.Uri.file(filePath)))
 }
 
 export async function NsExtensionProviderInit() {

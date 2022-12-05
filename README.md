@@ -24,3 +24,4 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
   or if not the cmnd will keep traversing up until it finds a directory of `tests` ex.`root/tests`
 - the test file will be created with the original class hierarchy ex.`.../Tests/{TestType}/Services/Taxes/EmployeeTaxTest.php`
 - if file already exists it will be opened instead
+- for the `Go To Test` codelens to show up, the class test file must be `className + Test` ex.`EmployeeTaxTest`

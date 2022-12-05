@@ -43,3 +43,7 @@
 - add cmnd to create test
 - make cmnds available in editor context menu
 - u can also create a test for a file by right click in explorer and choose `Generate PHP Test`
+
+## 0.1.3
+
+- add codelens to go to current class test file
