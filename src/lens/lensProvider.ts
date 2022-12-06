@@ -11,6 +11,7 @@ export default class lensProvider implements CodeLensProvider {
     async provideCodeLenses(doc: TextDocument): Promise<CodeLens[]> {
         let editor = window.activeTextEditor
         let links = []
+        let types = utils.config.testTypes.join('|')
 
         if (editor) {
             const text  = doc.getText()
@@ -26,13 +27,18 @@ export default class lensProvider implements CodeLensProvider {
                 let files = await workspace.findFiles(`**/${testFileName}.php`)
 
                 if (files.length) {
-                    links.push(
-                        new CodeLens(range, {
-                            command: `${utils.PACKAGE_CMND_NAME}.open_test_file`,
-                            title     : `$(debug-coverage) Go To Test`,
-                            arguments : [files[0].path]
-                        })
-                    )
+                    for (const file of files) {
+                        let filePath = file.path
+                        let type = filePath.match(types)
+
+                        links.push(
+                            new CodeLens(range, {
+                                command: `${utils.PACKAGE_CMND_NAME}.open_test_file`,
+                                title     : `$(debug-coverage) Go To Test (${type})`,
+                                arguments : [filePath]
+                            })
+                        )
+                    }
                 }
             }
 

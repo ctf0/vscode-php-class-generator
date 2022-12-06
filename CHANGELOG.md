@@ -51,3 +51,7 @@
 ## 0.1.4
 
 - add codelens to go to test abstraction
+
+## 0.1.5
+
+- support navigating to all types of the class tests in the codelens
