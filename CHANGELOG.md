@@ -47,3 +47,7 @@
 ## 0.1.3
 
 - add codelens to go to current class test file
+
+## 0.1.4
+
+- add codelens to go to test abstraction

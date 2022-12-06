@@ -1,6 +1,6 @@
 import * as vscode  from 'vscode'
 import * as utils   from './utils'
-import LensProvider from './lensProvider'
+import LensProvider from './lens/lensProvider'
 
 export async function activate(context) {
     /* Other -------------------------------------------------------------------- */
