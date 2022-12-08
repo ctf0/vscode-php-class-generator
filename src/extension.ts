@@ -1,8 +1,9 @@
-import * as vscode  from 'vscode'
-import * as _file   from './CreateFile'
-import * as _test   from './CreateTest'
-import LensProvider from './Lens/LensProvider'
-import * as utils   from './utils'
+import * as vscode     from 'vscode'
+import * as _file      from './CreateFile'
+import * as _test      from './CreateTest'
+import LensProvider    from './Lens/LensProvider'
+import updateNamespace from './NamespaceUpdate'
+import * as utils      from './utils'
 
 export async function activate(context) {
     /* Other -------------------------------------------------------------------- */
@@ -34,7 +35,7 @@ export async function activate(context) {
         )
     }
 
-    // vscode.workspace.onDidRenameFiles(async (event) => await updateNamespace(event))
+    vscode.workspace.onDidRenameFiles(async (event) => await updateNamespace(event))
 }
 
 async function createFile(folder, type) {

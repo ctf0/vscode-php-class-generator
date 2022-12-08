@@ -1,10 +1,10 @@
-import fs from 'node:fs'
-import { titleCase } from 'title-case'
-import * as vscode from 'vscode'
-import * as utils from './utils'
+import fs from 'node:fs';
+import { pascalCase } from "pascal-case";
+import * as vscode from 'vscode';
+import * as utils from './utils';
 
 async function generateCode(filePath, prefix) {
-    let cn = titleCase(utils.getFileNameFromPath(filePath))
+    let cn = pascalCase(utils.getFileNameFromPath(filePath))
     let ns = await utils.getFileNamespace()
     let declaration = `${prefix} ${cn}`
 
@@ -39,7 +39,7 @@ export async function insertSnippet(type) {
 }
 
 export async function createFile(path, type, fileName: any = null) {
-    type = titleCase(type)
+    type = pascalCase(type)
     let name: any = fileName
 
     if (!name) {
@@ -53,7 +53,7 @@ export async function createFile(path, type, fileName: any = null) {
         }
     }
 
-    name = titleCase(name.replace('.php', ''))
+    name = pascalCase(name.replace('.php', ''))
     name = `${path}/${name}.php`
 
     if (fs.existsSync(name)) {

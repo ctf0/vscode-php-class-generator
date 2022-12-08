@@ -63,3 +63,7 @@
 ## 0.2.1
 
 - disable 020 update until more test cases are done
+
+## 0.2.2
+
+- fix 020 issues

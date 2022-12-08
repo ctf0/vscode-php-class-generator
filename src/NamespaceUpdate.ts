@@ -1,9 +1,8 @@
-import escapeStringRegexp from 'escape-string-regexp'
-import glob from 'fast-glob'
-import fs from 'node:fs'
-import replace from 'replace-in-file'
-import * as vscode from 'vscode'
-import * as utils from './utils'
+import escapeStringRegexp from 'escape-string-regexp';
+import fs from 'node:fs';
+import replace from 'replace-in-file';
+import * as vscode from 'vscode';
+import * as utils from './utils';
 
 export default async function updateNamespace(event) {
     let files = event.files
@@ -23,27 +22,21 @@ export default async function updateNamespace(event) {
 
             try {
                 if (_scheme.isDirectory()) {
-                    const dirFilesPathsList = await glob(`${_new}/**/*!(blade).php`)
-
-                    for (const filePath of dirFilesPathsList) {
-                        await updateFileNamespace(filePath)
-                    }
-
                     await replaceOldNamespaceForDirs(_new, _old)
                 } else {
                     // moved to new dir
                     if (utils.getDirNameFromPath(_new) !== utils.getDirNameFromPath(_old)) {
-
                         await updateFileNamespace(_new)
                         await replaceOldNamespaceForFiles(_new, _old)
                     }
                     // new file name
                     else {
-                        await updateOldFileContentToFileName(_new, _old)
+                        continue
                     }
                 }
             } catch (error) {
                 console.error(error)
+                break
             }
         }
         /* -------------------------------------------------------------------------- */
@@ -52,35 +45,22 @@ export default async function updateNamespace(event) {
     });
 }
 
-async function updateOldFileContentToFileName(fileNewPath: string, fileOldPath: string) {
-    let _new_ns = utils.getFileNameFromPath(fileNewPath)
-    let _old_ns = utils.getFileNameFromPath(fileOldPath)
-
-    await replace.replaceInFile({
-        files: fileNewPath,
-        from: new RegExp(escapeStringRegexp(_old_ns), 'g'),
-        to: _new_ns,
-    })
-
-    return updateEverywhere(fileNewPath, _old_ns, _new_ns)
-}
-
 async function replaceOldNamespaceForFiles(fileNewPath: string, fileOldPath: string) {
     let _new_ns = await getNamespaceFromPath(fileNewPath)
-    _new_ns = getFileNamespaceOnly(_new_ns) + '\\' + utils.getFileNameFromPath(fileNewPath)
+    _new_ns = getFQN(_new_ns) + '\\' + utils.getFileNameFromPath(fileNewPath)
 
     let _old_ns = await getNamespaceFromPath(fileOldPath)
-    _old_ns = getFileNamespaceOnly(_old_ns) + '\\' + utils.getFileNameFromPath(fileOldPath)
+    _old_ns = getFQN(_old_ns) + '\\' + utils.getFileNameFromPath(fileOldPath)
 
     return updateEverywhere(fileNewPath, _old_ns, _new_ns)
 }
 
 async function replaceOldNamespaceForDirs(dirNewPath: string, dirOldPath: string) {
     let _new_ns = await getNamespaceFromPath(dirNewPath + '/ph.php')
-    _new_ns = getFileNamespaceOnly(_new_ns)
+    _new_ns = getFQN(_new_ns)
 
     let _old_ns = await getNamespaceFromPath(dirOldPath + '/ph.php')
-    _old_ns = getFileNamespaceOnly(_old_ns)
+    _old_ns = getFQN(_old_ns)
 
     return updateEverywhere(dirNewPath, _old_ns, _new_ns)
 }
@@ -101,7 +81,7 @@ async function getNamespaceFromPath(filePath) {
     return utils.getFileNamespace(uri)
 }
 
-function getFileNamespaceOnly(text) {
+function getFQN(text) {
     return text.replace(/(namespace\s+|\n|;)/g, '')
 }
 
