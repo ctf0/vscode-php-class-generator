@@ -7,22 +7,22 @@ import {
 } from 'vscode'
 import * as utils from '../utils'
 
-export default class lensProvider implements CodeLensProvider {
+export default class LensProvider implements CodeLensProvider {
     async provideCodeLenses(doc: TextDocument): Promise<CodeLens[]> {
         let editor = window.activeTextEditor
         let links = []
         let types = utils.config.testTypes.join('|')
 
         if (editor) {
-            const text  = doc.getText()
+            const text = doc.getText()
 
             // go to test
             let regex = new RegExp(/(?<=(interface|class)\s)(?!.*Test)(\w+)/g)
 
             for (const match of text.matchAll(regex)) {
-                const found        = match[0]
+                const found = match[0]
                 const testFileName = `${found}Test`
-                const range: any   = doc.getWordRangeAtPosition(doc.positionAt(match.index), /\w+/)
+                const range: any = doc.getWordRangeAtPosition(doc.positionAt(match.index), /\w+/)
 
                 let files = await workspace.findFiles(`**/${testFileName}.php`)
 
@@ -34,8 +34,8 @@ export default class lensProvider implements CodeLensProvider {
                         links.push(
                             new CodeLens(range, {
                                 command: `${utils.PACKAGE_CMND_NAME}.open_test_file`,
-                                title     : `$(debug-coverage) Go To Test (${type})`,
-                                arguments : [filePath]
+                                title: `$(debug-coverage) Go To Test (${type})`,
+                                arguments: [filePath]
                             })
                         )
                     }
@@ -46,9 +46,9 @@ export default class lensProvider implements CodeLensProvider {
             regex = new RegExp(/(?<=(class)\s)(\w+Test)/g)
 
             for (const match of text.matchAll(regex)) {
-                const found        = match[0]
+                const found = match[0]
                 const classFileName = found.replace(/Test$/, '')
-                const range: any   = doc.getWordRangeAtPosition(doc.positionAt(match.index), /\w+/)
+                const range: any = doc.getWordRangeAtPosition(doc.positionAt(match.index), /\w+/)
 
                 let files = await workspace.findFiles(`**/${classFileName}.php`)
 
@@ -56,8 +56,8 @@ export default class lensProvider implements CodeLensProvider {
                     links.push(
                         new CodeLens(range, {
                             command: `${utils.PACKAGE_CMND_NAME}.open_test_file`,
-                            title     : `$(debug-disconnect) Go To Abstraction`,
-                            arguments : [files[0].path]
+                            title: `$(debug-disconnect) Go To Abstraction`,
+                            arguments: [files[0].path]
                         })
                     )
                 }

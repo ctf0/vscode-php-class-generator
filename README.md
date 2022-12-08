@@ -5,6 +5,8 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 - remove generate namespace command
 - remove vendor config
 - add make test command
+- support updating file/s namespace & class-name on `move/rename`
+    - glob exclude is populated from both `files.watcherExclude` & `search.exclude`
 
 ## Test File Creation
 

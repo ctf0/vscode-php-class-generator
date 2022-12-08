@@ -55,3 +55,7 @@
 ## 0.1.5
 
 - support navigating to all types of the class tests in the codelens
+
+## 0.2.0
+
+- support auto updating file/s namespace on move
