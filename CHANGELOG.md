@@ -59,3 +59,7 @@
 ## 0.2.0
 
 - support auto updating file/s namespace on move
+
+## 0.2.1
+
+- disable 020 update until more test cases are done
