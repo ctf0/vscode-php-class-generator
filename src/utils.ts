@@ -19,10 +19,10 @@ export async function getFileNamespace(uri: any = null) {
     return NS_EXTENSION_PROVIDER.getNamespace(uri)
 }
 
-export function showMessage(msg, error = false) {
+export function showMessage(msg, error = false, items: any = []) {
     return error
-        ? vscode.window.showErrorMessage(`PHP Class Generator: ${msg}`)
-        : vscode.window.showInformationMessage(`PHP Class Generator: ${msg}`)
+        ? vscode.window.showErrorMessage(`PHP Class Generator: ${msg}`, ...items)
+        : vscode.window.showInformationMessage(`PHP Class Generator: ${msg}`, ...items)
 }
 
 export async function NsExtensionProviderInit() {

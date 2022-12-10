@@ -1,12 +1,12 @@
-import fs from 'node:fs';
+import fs from 'fs-extra';
 import { pascalCase } from "pascal-case";
 import * as vscode from 'vscode';
 import * as utils from './utils';
 
 async function generateCode(filePath, prefix) {
     let cn = pascalCase(utils.getFileNameFromPath(filePath))
-    let ns = await utils.getFileNamespace()
     let declaration = `${prefix} ${cn}`
+    let namespace = await utils.getFileNamespace() || ''
 
     if (prefix == 'class') {
         declaration = `\${1|abstract ,final |}class ${cn}\${2: \${3|extends ,implements |}\$4}`
@@ -17,8 +17,7 @@ async function generateCode(filePath, prefix) {
     }
 
     return '<?php\n' +
-        ns +
-        '\n' +
+        `${namespace}\n` +
         `${declaration}\n` +
         '{\n' +
         '  $0' +
@@ -56,12 +55,17 @@ export async function createFile(path, type, fileName: any = null) {
     name = pascalCase(name.replace('.php', ''))
     name = `${path}/${name}.php`
 
-    if (fs.existsSync(name)) {
-        return utils.openFile(name)
+    if (await fs.pathExists(name)) {
+        utils.showMessage('path already exists', false, ['Open File']).then((e) => {
+            if (e) {
+                return utils.openFile(name)
+            }
+        })
+
+        throw 'already exists'
     }
 
-    fs.mkdirSync(utils.getDirNameFromPath(name), { recursive: true })
-    fs.writeFileSync(name, '')
+    await fs.outputFile(name, '')
 
     return utils.openFile(name)
 }

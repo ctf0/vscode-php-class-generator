@@ -64,6 +64,10 @@
 
 - disable 020 update until more test cases are done
 
-## 0.2.2
+## 0.2.3
 
 - fix 020 issues
+- fix insert snippet even if file already exists
+- use async ops everywhere
+- add away to open already existing file while having the ability to complete the snippet,
+  sadly there is no way to know when the user has completed the snippet

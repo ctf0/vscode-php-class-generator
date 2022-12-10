@@ -1,97 +1,233 @@
 import escapeStringRegexp from 'escape-string-regexp';
-import fs from 'node:fs';
+import fs from 'fs-extra';
 import replace from 'replace-in-file';
 import * as vscode from 'vscode';
 import * as utils from './utils';
 
-export default async function updateNamespace(event) {
+const TYPES_REG = /class|interface|enum|trait/
+const NAMESPACE_REG = /^namespace/m
+const ERROR_MSG = 'nothing changed as we cant correctly update references'
+
+export default async function updateNamespace(event: vscode.FileRenameEvent) {
     let files = event.files
 
     vscode.window.withProgress({
-        location: vscode.ProgressLocation.Window,
+        location: vscode.ProgressLocation.Notification,
         cancellable: false,
         title: 'Updating Please Wait'
     }, async (progress) => {
         progress.report({ increment: 0 });
 
-        /* -------------------------------------------------------------------------- */
         for (const file of files) {
-            const _old = file.oldUri.fsPath
-            const _new = file.newUri.fsPath
-            const _scheme = fs.statSync(_new)
+            const from = file.oldUri.fsPath
+            const to = file.newUri.fsPath
+            const _scheme = await fs.stat(to)
 
             try {
                 if (_scheme.isDirectory()) {
-                    await replaceOldNamespaceForDirs(_new, _old)
+                    await replacefromNamespaceForDirs(to, from)
                 } else {
                     // moved to new dir
-                    if (utils.getDirNameFromPath(_new) !== utils.getDirNameFromPath(_old)) {
-                        await updateFileNamespace(_new)
-                        await replaceOldNamespaceForFiles(_new, _old)
+                    if (utils.getDirNameFromPath(to) !== utils.getDirNameFromPath(from)) {
+                        let { _from, _to } = await getFileNameAndNamespace(to, from)
+
+                        if (!_from.namespace || !_to.namespace) {
+                            utils.showMessage(ERROR_MSG)
+                            continue
+                        }
+
+                        progress.report({ increment: 50 });
+                        if (await updateFileNamespace(to)) {
+                            progress.report({ increment: 80 });
+                            await updateEverywhereForFiles(to, _to, _from)
+                        }
                     }
                     // new file name
                     else {
-                        continue
+                        progress.report({ increment: 50 });
+                        if (await updateFileContentByFileName(to, from)) {
+                            progress.report({ increment: 80 });
+                            await replaceFileNamespaceOnRename(to, from)
+                        }
                     }
+
                 }
             } catch (error) {
-                console.error(error)
+                // console.error(error)
                 break
             }
         }
-        /* -------------------------------------------------------------------------- */
 
         progress.report({ increment: 100 });
     });
 }
 
-async function replaceOldNamespaceForFiles(fileNewPath: string, fileOldPath: string) {
-    let _new_ns = await getNamespaceFromPath(fileNewPath)
-    _new_ns = getFQN(_new_ns) + '\\' + utils.getFileNameFromPath(fileNewPath)
+/* Directory ---------------------------------------------------------------- */
 
-    let _old_ns = await getNamespaceFromPath(fileOldPath)
-    _old_ns = getFQN(_old_ns) + '\\' + utils.getFileNameFromPath(fileOldPath)
+async function replacefromNamespaceForDirs(dirToPath: string, dirFromPath: string) {
+    let _from_ns = await getNamespaceFromPath(dirFromPath + '/ph.php')
+    let _to_ns = await getNamespaceFromPath(dirToPath + '/ph.php')
 
-    return updateEverywhere(fileNewPath, _old_ns, _new_ns)
+    return updateEverywhereForDirs(
+        dirToPath,
+        getFQNOnly(_from_ns),
+        getFQNOnly(_to_ns)
+    )
 }
 
-async function replaceOldNamespaceForDirs(dirNewPath: string, dirOldPath: string) {
-    let _new_ns = await getNamespaceFromPath(dirNewPath + '/ph.php')
-    _new_ns = getFQN(_new_ns)
+/* Files Move --------------------------------------------------------------- */
+async function updateFileNamespace(fileToPath) {
+    let toNamespace = await getNamespaceFromPath(fileToPath)
 
-    let _old_ns = await getNamespaceFromPath(dirOldPath + '/ph.php')
-    _old_ns = getFQN(_old_ns)
+    let results: any = await replace.replaceInFile({
+        files: fileToPath,
+        processor: (input) => {
+            // if it has a namespace then its probably a class
+            if (input.match(NAMESPACE_REG)) {
+                input = input.replace(new RegExp(/(\n)?^namespace.*(\n)?/, 'm'), toNamespace)
+            }
 
-    return updateEverywhere(dirNewPath, _old_ns, _new_ns)
-}
-
-async function updateFileNamespace(filePath) {
-    const _new_ns = await getNamespaceFromPath(filePath)
-
-    return replace.replaceInFile({
-        files: filePath,
-        from: new RegExp(/^namespace.*$/, 'gm'),
-        to: _new_ns ? _new_ns.replace(/\n/g, '') : ''
+            return input
+        }
     })
+
+    return results[0].hasChanged
 }
 
-async function getNamespaceFromPath(filePath) {
-    const uri = vscode.Uri.file(filePath)
+/* Files Rename ------------------------------------------------------------- */
 
-    return utils.getFileNamespace(uri)
+async function updateFileContentByFileName(fileToPath: string, fileFromPath: string) {
+    let { _from, _to } = await getFileNameAndNamespace(fileToPath, fileFromPath)
+
+    let results: any = await replace.replaceInFile({
+        files: fileToPath,
+        processor: (input) => {
+            // if it has a namespace then its probably a class
+            if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
+                input = input.replace(new RegExp(escapeStringRegexp(_from.name), 'g'), _to.name)
+            }
+
+            return input
+        }
+    })
+
+    return results[0].hasChanged
 }
 
-function getFQN(text) {
-    return text.replace(/(namespace\s+|\n|;)/g, '')
-}
+async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: string) {
+    let { _from, _to } = await getFileNameAndNamespace(fileToPath, fileFromPath)
 
-async function updateEverywhere(fileOrDirNewPath, changeFrom, changeTo) {
-    const cwd = vscode.workspace.getWorkspaceFolder(vscode.Uri.file(fileOrDirNewPath))?.uri.fsPath
+    let fromNamespace = _from.namespace
+    let toNamespace = _to.namespace
+
+    if (!fromNamespace && !toNamespace) {
+        return
+    }
 
     return replace.replaceInFile({
-        files: `${cwd}/**/*!(blade).php`,
+        files: `${getCWD(fileToPath)}/**/*!(blade).php`,
         ignore: utils.filesExcludeGlob,
-        from: new RegExp(escapeStringRegexp(changeFrom), 'g'),
-        to: changeTo
+        processor: (input) => {
+            // only change the namespace if it has an alias
+            if (input.includes(`use ${fromNamespace} as `)) {
+                return input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
+            }
+
+            // otherwise change all references (namespace & class calls)
+            return input
+                .replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
+                .replace(new RegExp(escapeStringRegexp(_from.name), 'g'), _to.name)
+        }
     })
+}
+
+/* Everywhere --------------------------------------------------------------- */
+
+async function updateEverywhereForDirs(
+    dirToPath: string,
+    fromNamespace: string | undefined,
+    toNamespace: string | undefined,
+) {
+    // stop if moving to / from non-namespace
+    if (
+        (!fromNamespace && toNamespace) ||
+        (fromNamespace && !toNamespace)
+    ) {
+        utils.showMessage(ERROR_MSG)
+        return
+    }
+
+    return replace.replaceInFile({
+        files: `${getCWD(dirToPath)}/**/*!(blade).php`,
+        ignore: utils.filesExcludeGlob,
+        processor: (input) => {
+            // if the file is a namespaceable ex."class" & have a namespace declaration
+            if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
+                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
+            }
+
+            return input
+        }
+    })
+}
+
+async function updateEverywhereForFiles(fileToPath, _to, _from) {
+    let fromNamespace = _from.namespace
+    let toNamespace = _to.namespace
+
+    let fromName = _from.name
+    let toName = _to.name
+
+    // moved from/to namespace
+    return replace.replaceInFile({
+        files: `${getCWD(fileToPath)}/**/*!(blade).php`,
+        ignore: utils.filesExcludeGlob,
+        processor: (input) => {
+            // if the file is a namespaceable ex."class" & have a namespace declaration
+            if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
+                // if its not an alias then update class call
+                if (!input.includes(`use ${fromNamespace} as `)) {
+                    input = input.replace(new RegExp(escapeStringRegexp(fromName), 'g'), toName)
+                }
+
+                // update namespace
+                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
+            }
+
+            return input
+        }
+    })
+}
+
+/* Helpers ------------------------------------------------------------------ */
+
+async function getNamespaceFromPath(filePath: string) {
+    return utils.getFileNamespace(vscode.Uri.file(filePath))
+}
+
+function getFQNOnly(text: string | undefined) {
+    return text ? text.replace(/(namespace\s+|\n|;)/g, '') : undefined
+}
+
+function getCWD(path: string) {
+    return vscode.workspace.getWorkspaceFolder(vscode.Uri.file(path))?.uri.fsPath
+}
+
+async function getFileNameAndNamespace(fileToPath: string, fileFromPath: string) {
+    let to_fn = utils.getFileNameFromPath(fileToPath)
+    let from_fn = utils.getFileNameFromPath(fileFromPath)
+
+    let to_ns = await getNamespaceFromPath(fileToPath)
+    let from_ns = await getNamespaceFromPath(fileFromPath)
+
+    return {
+        _from: {
+            name: from_fn,
+            namespace: from_ns ? (getFQNOnly(from_ns) + '\\' + from_fn) : '',
+        },
+        _to: {
+            name: to_fn,
+            namespace: to_ns ? (getFQNOnly(to_ns) + '\\' + to_fn) : '',
+        }
+    }
 }

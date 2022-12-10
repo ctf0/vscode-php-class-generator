@@ -22,24 +22,29 @@ export async function createTest(e) {
             let docName = utils.getFileNameFromPath(docPath)
             let docDir = utils.getDirNameFromPath(docPath)
 
-            let foundDir = await findUp(
-                async (directory) => await pathExists(path.join(directory, testFolderName)) && directory, {
-                cwd: docDir,
-                type: 'directory'
-            })
+            let foundDir: any = await findUp(
+                async (directory) => await pathExists(path.join(directory, testFolderName)) && directory,
+                {
+                    cwd: docDir,
+                    type: 'directory'
+                }
+            )
 
             if (foundDir) {
                 let type = 'class'
                 let testName = `${docName}Test`
 
-                await Promise.all(
-                    selectedTestTypes.map(async (testType) => {
-                        let testPath = `${foundDir}/${testFolderName}/${testType}` + docDir.replace(foundDir, '')
+                for (const testType of selectedTestTypes) {
+                    let testPath = `${foundDir}/${testFolderName}/${testType}` + docDir.replace(foundDir, '')
 
+                    try {
                         await _file.createFile(testPath, type, testName)
-                        await _file.insertSnippet(type)
-                    })
-                )
+                    } catch (error) {
+                        continue
+                    }
+
+                    await _file.insertSnippet(type)
+                }
             } else {
                 utils.showMessage(`please create a ${testFolderName} folder first`, true)
             }
