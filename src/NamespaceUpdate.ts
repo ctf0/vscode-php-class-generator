@@ -7,6 +7,7 @@ import * as utils from './utils';
 const TYPES_REG = /class|interface|enum|trait/
 const NAMESPACE_REG = /^namespace/m
 const ERROR_MSG = 'nothing changed as we cant correctly update references'
+const EXT = '.php'
 
 export default async function updateNamespace(event: vscode.FileRenameEvent) {
     let files = event.files
@@ -16,8 +17,6 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
         cancellable: false,
         title: 'Updating Please Wait'
     }, async (progress) => {
-        progress.report({ increment: 0 });
-
         for (const file of files) {
             const from = file.oldUri.fsPath
             const to = file.newUri.fsPath
@@ -27,6 +26,11 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                 if (_scheme.isDirectory()) {
                     await replacefromNamespaceForDirs(to, from)
                 } else {
+                    // ignore if not php
+                    if (utils.getFileExtFromPath(from) !== EXT || utils.getFileExtFromPath(to) !== EXT) {
+                        continue
+                    }
+
                     // moved to new dir
                     if (utils.getDirNameFromPath(to) !== utils.getDirNameFromPath(from)) {
                         let { _from, _to } = await getFileNameAndNamespace(to, from)
@@ -57,16 +61,14 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                 break
             }
         }
-
-        progress.report({ increment: 100 });
     });
 }
 
 /* Directory ---------------------------------------------------------------- */
 
 async function replacefromNamespaceForDirs(dirToPath: string, dirFromPath: string) {
-    let _from_ns = await getNamespaceFromPath(dirFromPath + '/ph.php')
-    let _to_ns = await getNamespaceFromPath(dirToPath + '/ph.php')
+    let _from_ns = await getNamespaceFromPath(dirFromPath + `/ph${EXT}`)
+    let _to_ns = await getNamespaceFromPath(dirToPath + `/ph${EXT}`)
 
     return updateEverywhereForDirs(
         dirToPath,
@@ -125,7 +127,7 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
     }
 
     return replace.replaceInFile({
-        files: `${getCWD(fileToPath)}/**/*!(blade).php`,
+        files: `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
         processor: (input) => {
             // only change the namespace if it has an alias
@@ -158,7 +160,7 @@ async function updateEverywhereForDirs(
     }
 
     return replace.replaceInFile({
-        files: `${getCWD(dirToPath)}/**/*!(blade).php`,
+        files: `${getCWD(dirToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
         processor: (input) => {
             // if the file is a namespaceable ex."class" & have a namespace declaration
@@ -180,7 +182,7 @@ async function updateEverywhereForFiles(fileToPath, _to, _from) {
 
     // moved from/to namespace
     return replace.replaceInFile({
-        files: `${getCWD(fileToPath)}/**/*!(blade).php`,
+        files: `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
         processor: (input) => {
             // if the file is a namespaceable ex."class" & have a namespace declaration

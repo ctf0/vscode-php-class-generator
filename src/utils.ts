@@ -11,6 +11,10 @@ export function getFileNameFromPath(filePath) {
     return path.parse(filePath).name
 }
 
+export function getFileExtFromPath(filePath) {
+    return path.parse(filePath).ext
+}
+
 export function getDirNameFromPath(filePath) {
     return path.parse(filePath).dir
 }
