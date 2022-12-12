@@ -167,6 +167,7 @@
         "fast-glob": "^3.2.12",
         "find-up": "^6.3.0",
         "fs-extra": "^11.1.0",
+        "p-retry": "^5.1.2",
         "pascal-case": "^3.1.2",
         "replace-in-file": "^6.3.5"
     },

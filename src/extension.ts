@@ -2,7 +2,7 @@ import * as vscode from 'vscode';
 import * as _file from './CreateFile';
 import * as _test from './CreateTest';
 import LensProvider from './Lens/LensProvider';
-import updateNamespace from './NamespaceUpdate';
+import updateNamespace from './Symbol/NamespaceUpdate';
 import * as utils from './utils';
 
 export async function activate(context) {

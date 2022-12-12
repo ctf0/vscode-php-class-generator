@@ -1,0 +1,12 @@
+file move
+    - ns to non
+    - ns to ns
+    - non to non
+
+file rename
+    - ns
+    - non
+
+dir
+    - move
+    - rename
