@@ -71,3 +71,8 @@
 - use async ops everywhere
 - add away to open already existing file while having the ability to complete the snippet,
   sadly there is no way to know when the user has completed the snippet
+
+## 0.2.5
+
+- fix https://github.com/ctf0/vscode-php-class-generator/issues/2
+- partially fix https://github.com/ctf0/vscode-php-class-generator/issues/3

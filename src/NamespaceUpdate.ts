@@ -4,7 +4,8 @@ import replace from 'replace-in-file';
 import * as vscode from 'vscode';
 import * as utils from './utils';
 
-const TYPES_REG = /class|interface|enum|trait/
+const TYPES = 'class|interface|enum|trait'
+const TYPES_REG = new RegExp(TYPES)
 const NAMESPACE_REG = /^namespace/m
 const ERROR_MSG = 'nothing changed as we cant correctly update references'
 const EXT = '.php'
@@ -40,17 +41,13 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                             continue
                         }
 
-                        progress.report({ increment: 50 });
                         if (await updateFileNamespace(to)) {
-                            progress.report({ increment: 80 });
                             await updateEverywhereForFiles(to, _to, _from)
                         }
                     }
                     // new file name
                     else {
-                        progress.report({ increment: 50 });
                         if (await updateFileContentByFileName(to, from)) {
-                            progress.report({ increment: 80 });
                             await replaceFileNamespaceOnRename(to, from)
                         }
                     }
@@ -106,7 +103,12 @@ async function updateFileContentByFileName(fileToPath: string, fileFromPath: str
         processor: (input) => {
             // if it has a namespace then its probably a class
             if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
-                input = input.replace(new RegExp(escapeStringRegexp(_from.name), 'g'), _to.name)
+                // update only the class name & nothing else
+                let match = input.match(`(${TYPES}) ${escapeStringRegexp(_from.name)}`)
+
+                if (match) {
+                    input = input.replace(match[0], `${match[1]} ${_to.name}`)
+                }
             }
 
             return input
@@ -130,15 +132,17 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
         files: `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
         processor: (input) => {
-            // only change the namespace if it has an alias
+            // change the namespace if it has an alias
             if (input.includes(`use ${fromNamespace} as `)) {
                 return input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
             }
 
-            // otherwise change all references (namespace & class calls)
+            // update the current to alias as we cant correctly update the reference class call
+            if (input.includes(`use ${fromNamespace};`)) {
+                return input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`)
+            }
+
             return input
-                .replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
-                .replace(new RegExp(escapeStringRegexp(_from.name), 'g'), _to.name)
         }
     })
 }
