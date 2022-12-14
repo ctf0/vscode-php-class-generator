@@ -17,7 +17,7 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
         location: vscode.ProgressLocation.Notification,
         cancellable: false,
         title: 'Updating Please Wait'
-    }, async (progress) => {
+    }, async () => {
         for (const file of files) {
             const from = file.oldUri.fsPath
             const to = file.newUri.fsPath
@@ -25,7 +25,7 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
 
             try {
                 if (_scheme.isDirectory()) {
-                    await replacefromNamespaceForDirs(to, from)
+                    await replaceFromNamespaceForDirs(to, from)
                 } else {
                     // ignore if not php
                     if (utils.getFileExtFromPath(from) !== EXT || utils.getFileExtFromPath(to) !== EXT) {
@@ -63,7 +63,7 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
 
 /* Directory ---------------------------------------------------------------- */
 
-async function replacefromNamespaceForDirs(dirToPath: string, dirFromPath: string) {
+async function replaceFromNamespaceForDirs(dirToPath: string, dirFromPath: string) {
     let _from_ns = await getNamespaceFromPath(dirFromPath + `/ph${EXT}`)
     let _to_ns = await getNamespaceFromPath(dirToPath + `/ph${EXT}`)
 
@@ -133,14 +133,17 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
         ignore: utils.filesExcludeGlob,
         processor: (input) => {
             // change the namespace if it has an alias
-            if (input.includes(`use ${fromNamespace} as `)) {
-                return input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
+            if (input.includes(`use ${fromNamespace} as`)) {
+                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
             }
 
             // update the current to alias as we cant correctly update the reference class call
             if (input.includes(`use ${fromNamespace};`)) {
-                return input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`)
+                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`)
             }
+
+            // update everywhere else
+            input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
 
             return input
         }
@@ -154,6 +157,10 @@ async function updateEverywhereForDirs(
     fromNamespace: string | undefined,
     toNamespace: string | undefined,
 ) {
+    if (!fromNamespace && !toNamespace) {
+        return
+    }
+
     // stop if moving to / from non-namespace
     if (
         (!fromNamespace && toNamespace) ||
@@ -181,22 +188,14 @@ async function updateEverywhereForFiles(fileToPath, _to, _from) {
     let fromNamespace = _from.namespace
     let toNamespace = _to.namespace
 
-    let fromName = _from.name
-    let toName = _to.name
-
     // moved from/to namespace
     return replace.replaceInFile({
         files: `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
         processor: (input) => {
             // if the file is a namespaceable ex."class" & have a namespace declaration
+            // then update namespace
             if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
-                // if its not an alias then update class call
-                if (!input.includes(`use ${fromNamespace} as `)) {
-                    input = input.replace(new RegExp(escapeStringRegexp(fromName), 'g'), toName)
-                }
-
-                // update namespace
                 input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
             }
 
