@@ -76,3 +76,7 @@
 
 - fix https://github.com/ctf0/vscode-php-class-generator/issues/2
 - partially fix https://github.com/ctf0/vscode-php-class-generator/issues/3
+
+## 0.2.7
+
+- fix showing error on folder moving, now we check if the folder have at least 1 php file b4 handling it

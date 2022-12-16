@@ -51,7 +51,6 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                             await replaceFileNamespaceOnRename(to, from)
                         }
                     }
-
                 }
             } catch (error) {
                 // console.error(error)
@@ -64,6 +63,12 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
 /* Directory ---------------------------------------------------------------- */
 
 async function replaceFromNamespaceForDirs(dirToPath: string, dirFromPath: string) {
+    let checkForPhpFiles = await vscode.workspace.findFiles(`${dirToPath}/**/*!(blade)${EXT}`, null, 1)
+
+    if (!checkForPhpFiles.length) {
+        return
+    }
+
     let _from_ns = await getNamespaceFromPath(dirFromPath + `/ph${EXT}`)
     let _to_ns = await getNamespaceFromPath(dirToPath + `/ph${EXT}`)
 
