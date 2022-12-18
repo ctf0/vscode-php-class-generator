@@ -80,12 +80,13 @@ async function replaceFromNamespaceForDirs(dirToPath: string, dirFromPath: strin
 }
 
 /* Files Move --------------------------------------------------------------- */
-async function updateFileNamespace(fileToPath) {
+
+async function updateFileNamespace(fileToPath: string) {
     let toNamespace = await getNamespaceFromPath(fileToPath)
 
     let results: any = await replace.replaceInFile({
         files: fileToPath,
-        processor: (input) => {
+        processor: (input: string) => {
             // if it has a namespace then its probably a class
             if (input.match(NAMESPACE_REG)) {
                 input = input.replace(new RegExp(/(\n)?^namespace.*(\n)?/, 'm'), toNamespace)
@@ -105,7 +106,7 @@ async function updateFileContentByFileName(fileToPath: string, fileFromPath: str
 
     let results: any = await replace.replaceInFile({
         files: fileToPath,
-        processor: (input) => {
+        processor: (input: string) => {
             // if it has a namespace then its probably a class
             if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
                 // update only the class name & nothing else
@@ -136,7 +137,7 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
     return replace.replaceInFile({
         files: `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
-        processor: (input) => {
+        processor: (input: string) => {
             // change the namespace if it has an alias
             if (input.includes(`use ${fromNamespace} as`)) {
                 input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
@@ -146,9 +147,6 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
             if (input.includes(`use ${fromNamespace};`)) {
                 input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`)
             }
-
-            // update everywhere else
-            input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
 
             return input
         }
@@ -178,7 +176,7 @@ async function updateEverywhereForDirs(
     return replace.replaceInFile({
         files: `${getCWD(dirToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
-        processor: (input) => {
+        processor: (input: string) => {
             // if the file is a namespaceable ex."class" & have a namespace declaration
             if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
                 input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace)
@@ -189,7 +187,11 @@ async function updateEverywhereForDirs(
     })
 }
 
-async function updateEverywhereForFiles(fileToPath, _to, _from) {
+async function updateEverywhereForFiles(
+    fileToPath: string,
+    _to: { name?: string; namespace: string; },
+    _from: { name?: string; namespace: string; }
+) {
     let fromNamespace = _from.namespace
     let toNamespace = _to.namespace
 
@@ -197,7 +199,7 @@ async function updateEverywhereForFiles(fileToPath, _to, _from) {
     return replace.replaceInFile({
         files: `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore: utils.filesExcludeGlob,
-        processor: (input) => {
+        processor: (input: string) => {
             // if the file is a namespaceable ex."class" & have a namespace declaration
             // then update namespace
             if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {

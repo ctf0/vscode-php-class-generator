@@ -80,3 +80,7 @@
 ## 0.2.7
 
 - fix showing error on folder moving, now we check if the folder have at least 1 php file b4 handling it
+
+## 0.2.8
+
+- update readme

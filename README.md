@@ -5,8 +5,18 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 - remove generate namespace command
 - remove vendor config
 - add make test command
-- support updating file/s namespace & class-name on `move/rename`
+- support updating file/s namespace on `move/rename`
     - glob exclude is populated from both `files.watcherExclude` & `search.exclude`
+
+<br>
+
+## File Namespace Updates
+
+atm editor doesnt auto save the references changes [issue #168825](https://github.com/microsoft/vscode/issues/168825) so as a way around, we will update the namespace to an alias ex.`use App\Some\Path as ClassName` to avoid changing incorrect references & make sure your code still works.
+
+when the open ticket is resolved, the extension will update the references correctly without any work-arounds.
+
+<br>
 
 ## Test File Creation
 
