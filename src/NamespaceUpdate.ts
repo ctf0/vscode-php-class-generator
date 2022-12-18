@@ -1,4 +1,5 @@
 import escapeStringRegexp from 'escape-string-regexp';
+import glob from 'fast-glob';
 import fs from 'fs-extra';
 import replace from 'replace-in-file';
 import * as vscode from 'vscode';
@@ -63,7 +64,7 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
 /* Directory ---------------------------------------------------------------- */
 
 async function replaceFromNamespaceForDirs(dirToPath: string, dirFromPath: string) {
-    let checkForPhpFiles = await vscode.workspace.findFiles(`${dirToPath}/**/*!(blade)${EXT}`, null, 1)
+    let checkForPhpFiles = await glob(`**/*!(blade)${EXT}`, { cwd: dirToPath })
 
     if (!checkForPhpFiles.length) {
         return
