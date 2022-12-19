@@ -1,55 +1,55 @@
-import { findUp, pathExists } from 'find-up'
-import path from 'node:path'
-import * as vscode from 'vscode'
-import * as _file from './CreateFile'
-import * as utils from './utils'
+import { findUp, pathExists } from 'find-up';
+import path from 'node:path';
+import * as vscode from 'vscode';
+import * as _file from './CreateFile';
+import * as utils from './utils';
 
 export async function createTest(e) {
-    let testFolderName = utils.config.testFolderName
+    const testFolderName = utils.config.testFolderName;
 
-    let selectedTestTypes = await vscode.window.showQuickPick(
+    const selectedTestTypes = await vscode.window.showQuickPick(
         utils.config.testTypes,
         {
-            placeHolder: 'choose what types of tests you want to create',
-            canPickMany: true
-        }
-    )
+            placeHolder : 'choose what types of tests you want to create',
+            canPickMany : true,
+        },
+    );
 
     if (selectedTestTypes && selectedTestTypes.length) {
-        let docPath = e ? e.fsPath : vscode.window.activeTextEditor?.document?.fileName
+        const docPath = e ? e.fsPath : vscode.window.activeTextEditor?.document?.fileName;
 
         if (docPath) {
-            let docName = utils.getFileNameFromPath(docPath)
-            let docDir = utils.getDirNameFromPath(docPath)
+            const docName = utils.getFileNameFromPath(docPath);
+            const docDir = utils.getDirNameFromPath(docPath);
 
-            let foundDir: any = await findUp(
+            const foundDir: any = await findUp(
                 async (directory) => await pathExists(path.join(directory, testFolderName)) && directory,
                 {
-                    cwd: docDir,
-                    type: 'directory'
-                }
-            )
+                    cwd  : docDir,
+                    type : 'directory',
+                },
+            );
 
             if (foundDir) {
-                let type = 'class'
-                let testName = `${docName}Test`
+                const type = 'class';
+                const testName = `${docName}Test`;
 
                 for (const testType of selectedTestTypes) {
-                    let testPath = `${foundDir}/${testFolderName}/${testType}` + docDir.replace(foundDir, '')
+                    const testPath = `${foundDir}/${testFolderName}/${testType}` + docDir.replace(foundDir, '');
 
                     try {
-                        await _file.createFile(testPath, type, testName)
+                        await _file.createFile(testPath, type, testName);
                     } catch (error) {
-                        continue
+                        continue;
                     }
 
-                    await _file.insertSnippet(type)
+                    await _file.insertSnippet(type);
                 }
             } else {
-                utils.showMessage(`please create a ${testFolderName} folder first`, true)
+                utils.showMessage(`please create a ${testFolderName} folder first`, true);
             }
         }
     } else {
-        utils.showMessage('please select a type to create')
+        utils.showMessage('please select a type to create');
     }
 }

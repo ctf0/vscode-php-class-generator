@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.2.9",
+    "version": "0.3.0",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -70,6 +70,11 @@
                     "command": "phpclassgen.generate_test_for_file",
                     "when": "editorLangId == php",
                     "group": "phpclassgen"
+                },
+                {
+                    "command": "phpclassgen.extract_to_function",
+                    "when": "editorLangId == php && editorHasSelection && !editorHasMultipleSelections",
+                    "group": "phpclassgen"
                 }
             ],
             "commandPalette": [
@@ -92,6 +97,10 @@
                 {
                     "command": "phpclassgen.generate_test_for_file",
                     "when": "editorLangId == php"
+                },
+                {
+                    "command": "phpclassgen.extract_to_function",
+                    "when": "editorLangId == php && editorHasSelection && !editorHasMultipleSelections"
                 }
             ]
         },
@@ -120,6 +129,11 @@
                 "command": "phpclassgen.generate_test_for_file",
                 "title": "Generate PHP Test",
                 "category": "PHP Class Generator"
+            },
+            {
+                "command": "phpclassgen.extract_to_function",
+                "title": "Extract To Method/Function",
+                "category": "PHP Class Generator"
             }
         ],
         "configuration": {
@@ -144,6 +158,16 @@
                     "type": "boolean",
                     "default": true,
                     "description": "show go to test code lens"
+                },
+                "phpClassGenerator.extractFunctionDoc": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "add generic docblock to extract function results"
+                },
+                "phpClassGenerator.setNamespaceToAlias": {
+                    "type": "boolean",
+                    "default": true,
+                    "markdownDescription": "set namespace to alias on file rename/move, [issue #168825](https://github.com/microsoft/vscode/issues/168825)"
                 }
             }
         }
@@ -167,6 +191,7 @@
         "fast-glob": "^3.2.12",
         "find-up": "^6.3.0",
         "fs-extra": "^11.1.0",
+        "p-retry": "^5.1.2",
         "pascal-case": "^3.1.2",
         "replace-in-file": "^6.3.5"
     },

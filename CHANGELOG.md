@@ -84,3 +84,9 @@
 ## 0.2.8
 
 - update readme
+
+## 0.3.0
+
+- fix not updating FQN class declaration
+- add function/method extract
+- add new option to disable updating namespace to alias on class rename `phpClassGenerator.setNamespaceToAlias: false`

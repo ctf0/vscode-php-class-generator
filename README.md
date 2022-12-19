@@ -4,6 +4,8 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 
 - remove generate namespace command
 - remove vendor config
+- add (basic) extract selection to method "selection must be inside a method/function"
+    - make sure editor can read file symbols ex.[intelephense](https://marketplace.visualstudio.com/items?itemName=bmewburn.vscode-intelephense-client), [phptools](https://marketplace.visualstudio.com/items?itemName=DEVSENSE.phptools-vscode), etc..
 - add make test command
 - support updating file/s namespace on `move/rename`
     - glob exclude is populated from both `files.watcherExclude` & `search.exclude`
@@ -12,9 +14,11 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 
 ## File Namespace Updates
 
-atm editor doesnt auto save the references changes [issue #168825](https://github.com/microsoft/vscode/issues/168825) so as a way around, we will update the namespace to an alias ex.`use App\Some\Path as ClassName` to avoid changing incorrect references & make sure your code still works.
+atm vscode cant auto save the references changes we make on class rename [issue #168825](https://github.com/microsoft/vscode/issues/168825) so as a way around, we will update the namespace to an alias ex.`use App\Some\Path as ClassName` to avoid changing incorrect references & make sure your code still works.
 
 when the open ticket is resolved, the extension will update the references correctly without any work-arounds.
+
+still if you dont want this behavior, you can set `phpClassGenerator.setNamespaceToAlias: false`
 
 <br>
 
