@@ -49,7 +49,9 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                     // new file name
                     else {
                         if (await updateFileContentByFileName(to, from)) {
-                            await replaceFileNamespaceOnRename(to, from);
+                            if (utils.config.setNamespaceToAlias) {
+                                await replaceFileNamespaceOnRename(to, from);
+                            }
                         }
                     }
                 }
@@ -138,10 +140,8 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
             }
 
             // update the current to alias
-            if (utils.config.setNamespaceToAlias) {
-                if (input.includes(`use ${fromNamespace};`)) {
-                    input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`);
-                }
+            if (input.includes(`use ${fromNamespace};`)) {
+                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`);
             }
 
             // update FQN
