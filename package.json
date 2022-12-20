@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.3.2",
+    "version": "0.3.3",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -147,12 +147,15 @@
                         "Feature",
                         "Unit"
                     ],
-                    "description": "test types"
+                    "items": {
+                        "type": "string"
+                    },
+                    "minItems": 1,
+                    "uniqueItems": true
                 },
                 "phpClassGenerator.testFolderName": {
                     "type": "string",
-                    "default": "Tests",
-                    "description": "test folder name"
+                    "default": "Tests"
                 },
                 "phpClassGenerator.showCodeLens": {
                     "type": "boolean",
@@ -167,12 +170,12 @@
                 "phpClassGenerator.openUnchangedFiles": {
                     "type": "boolean",
                     "default": true,
-                    "markdownDescription": "open the files that cant be updated.\n\n[ripgrep](https://github.com/BurntSushi/ripgrep#installation) must be installed"
+                    "markdownDescription": "open the files that cant be updated.\n\n([ripgrep](https://github.com/BurntSushi/ripgrep#installation) must be installed)"
                 },
                 "phpClassGenerator.rgCommand": {
                     "type": "string",
                     "default": "rg {REGEX} --files-with-matches --follow --smart-case -g '**/*.php'",
-                    "markdownDescription": "ripgrep cmnd (requires #phpClassGenerator.openUnchangedFiles#).\n\n{REGEX} is a placeholder, dont remove it"
+                    "markdownDescription": "ripgrep command (requires `#phpClassGenerator.openUnchangedFiles#`)\n\n{REGEX} is a placeholder, dont remove it"
                 }
             }
         }
