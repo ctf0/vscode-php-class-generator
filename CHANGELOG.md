@@ -90,3 +90,9 @@
 - fix not updating FQN class declaration
 - add function/method extract
 - add new option to disable updating namespace to alias on class rename `phpClassGenerator.setNamespaceToAlias: false`
+
+## 0.3.2
+
+- remove config `phpClassGenerator.setNamespaceToAlias`
+- add new config `phpClassGenerator.openUnchangedFiles`
+- update rdme

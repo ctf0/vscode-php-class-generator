@@ -1,3 +1,4 @@
+import exec from 'await-exec';
 import escapeStringRegexp from 'escape-string-regexp';
 import glob from 'fast-glob';
 import fs from 'fs-extra';
@@ -49,9 +50,7 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                     // new file name
                     else {
                         if (await updateFileContentByFileName(to, from)) {
-                            if (utils.config.setNamespaceToAlias) {
-                                await replaceFileNamespaceOnRename(to, from);
-                            }
+                            await replaceFileNamespaceOnRename(to, from);
                         }
                     }
                 }
@@ -82,6 +81,7 @@ async function updateFileNamespace(fileToPath: string) {
 
     const results: any = await replace.replaceInFile({
         files     : fileToPath,
+        // @ts-ignore
         processor : (input: string) => {
             // if it has a namespace then its probably a class
             if (input.match(NAMESPACE_REG)) {
@@ -102,6 +102,7 @@ async function updateFileContentByFileName(fileToPath: string, fileFromPath: str
 
     const results: any = await replace.replaceInFile({
         files     : fileToPath,
+        // @ts-ignore
         processor : (input: string) => {
             // if it has a namespace then its probably a class
             if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
@@ -130,26 +131,36 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
         return;
     }
 
-    return replace.replaceInFile({
+    await replace.replaceInFile({
         files     : `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore    : utils.filesExcludeGlob,
+        // @ts-ignore
         processor : (input: string) => {
-            // change the namespace if it has an alias
-            if (input.includes(`use ${fromNamespace} as`)) {
-                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace);
-            }
-
-            // update the current to alias
-            if (input.includes(`use ${fromNamespace};`)) {
-                input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), `${toNamespace} as ${_from.name}`);
-            }
-
-            // update FQN
-            input = input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace);
+            input = input
+                // change the namespace if it has an alias
+                .replace(new RegExp(`(?<=^use )${escapeStringRegexp(fromNamespace)}(?= as)`, 'gm'), toNamespace)
+                // update FQN
+                .replace(new RegExp(`(?<!^use )${escapeStringRegexp(fromNamespace)}`, 'gm'), toNamespace);
 
             return input;
         },
     });
+
+    if (utils.config.openUnchangedFiles) {
+        const regex = `^use ${escapeStringRegexp(fromNamespace)};`;
+        const cmndResults = await exec(
+            utils.config.rgCommand.replace('{REGEX}', `'${regex}' '${getCWD(fileToPath)}'`),
+        );
+        const paths = cmndResults.stdout.split('\n');
+
+        if (paths.length) {
+            for (const path of paths) {
+                await utils.openFile(path.replace('\n', ''));
+            }
+        }
+    }
+
+    return;
 }
 
 /* Everywhere --------------------------------------------------------------- */
@@ -178,6 +189,7 @@ async function updateEverywhereForDirs(
     return replace.replaceInFile({
         files     : `${getCWD(dirToPath)}/**/*!(blade)${EXT}`,
         ignore    : utils.filesExcludeGlob,
+        // @ts-ignore
         processor : (input: string) => input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace),
     });
 }
@@ -194,6 +206,7 @@ async function updateEverywhereForFiles(
     return replace.replaceInFile({
         files     : `${getCWD(fileToPath)}/**/*!(blade)${EXT}`,
         ignore    : utils.filesExcludeGlob,
+        // @ts-ignore
         processor : (input: string) => input.replace(new RegExp(escapeStringRegexp(fromNamespace), 'g'), toNamespace),
     });
 }
