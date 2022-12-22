@@ -1,4 +1,4 @@
-import exec from 'await-exec';
+const cp = require('child_process');
 import escapeStringRegexp from 'escape-string-regexp';
 import glob from 'fast-glob';
 import fs from 'fs-extra';
@@ -147,11 +147,8 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
     });
 
     if (utils.config.openUnchangedFiles) {
-        const regex = `^use ${escapeStringRegexp(fromNamespace)};`;
-        const cmndResults = await exec(
-            utils.config.rgCommand.replace('{REGEX}', `'${regex}' '${getCWD(fileToPath)}'`),
-        );
-        const paths = cmndResults.stdout.split('\n');
+        const pathsToOpen: any = await runRG(fromNamespace, fileToPath);
+        const paths = pathsToOpen?.split('\n');
 
         if (paths.length) {
             for (const path of paths) {
@@ -161,6 +158,21 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
     }
 
     return;
+}
+
+function runRG(fromNamespace, fileToPath) {
+    const regex = `^use ${escapeStringRegexp(fromNamespace)};`;
+    const cmnd = utils.config.rgCommand.replace('{REGEX}', `'${regex}' '${getCWD(fileToPath)}'`);
+
+    return new Promise((resolve, reject) => cp.exec(cmnd, async (e, stdout, stderr) => {
+        if (stdout) {
+            resolve(stdout);
+        }
+
+        if (stderr) {
+            reject(stderr);
+        }
+    }));
 }
 
 /* Everywhere --------------------------------------------------------------- */
