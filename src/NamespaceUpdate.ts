@@ -1,4 +1,3 @@
-const cp = require('child_process');
 import escapeStringRegexp from 'escape-string-regexp';
 import glob from 'fast-glob';
 import fs from 'fs-extra';
@@ -124,6 +123,9 @@ async function updateFileContentByFileName(fileToPath: string, fileFromPath: str
 async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: string) {
     const { _from, _to } = await getFileNameAndNamespace(fileToPath, fileFromPath);
 
+    const fromClass = _from.name;
+    const toClass = _to.name;
+
     const fromNamespace = _from.namespace;
     const toNamespace = _to.namespace;
 
@@ -140,39 +142,23 @@ async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: st
                 // change the namespace if it has an alias
                 .replace(new RegExp(`(?<=^use )${escapeStringRegexp(fromNamespace)}(?= as)`, 'gm'), toNamespace)
                 // update FQN
-                .replace(new RegExp(`(?<!^use )${escapeStringRegexp(fromNamespace)}`, 'gm'), toNamespace);
+                .replace(new RegExp(`(?<!^use )${escapeStringRegexp(fromNamespace)}(?!\\w)`, 'gm'), toNamespace);
+
+            // update namespace & reference
+            if (new RegExp(`^use ${escapeStringRegexp(fromNamespace)};`, 'gm').exec(input)) {
+                input = input
+                    .replace(`${fromNamespace};`, `${toNamespace};`)                                      // namespace
+                    .replace(new RegExp(`(?<!\\w)${fromClass} `, 'g'), `${toClass} `)                     // param type
+                    .replace(new RegExp(`new ${fromClass}(?!\\w)`, 'g'), `new ${toClass}`)                // new()
+                    .replace(new RegExp(`(?<!\\w)${fromClass}::`, 'g'), `${toClass}::`)                   // static::
+                    .replace(new RegExp(`instanceof ${fromClass}(?!\\w)`, 'g'), `instanceof ${toClass}`); // instanceof
+            }
 
             return input;
         },
     });
 
-    if (utils.config.openUnchangedFiles) {
-        const pathsToOpen: any = await runRG(fromNamespace, fileToPath);
-        const paths = pathsToOpen?.split('\n');
-
-        if (paths.length) {
-            for (const path of paths) {
-                await utils.openFile(path.replace('\n', ''));
-            }
-        }
-    }
-
     return;
-}
-
-function runRG(fromNamespace, fileToPath) {
-    const regex = `^use ${escapeStringRegexp(fromNamespace)};`;
-    const cmnd = utils.config.rgCommand.replace('{REGEX}', `'${regex}' '${getCWD(fileToPath)}'`);
-
-    return new Promise((resolve, reject) => cp.exec(cmnd, async (e, stdout, stderr) => {
-        if (stdout) {
-            resolve(stdout);
-        }
-
-        if (stderr) {
-            reject(stderr);
-        }
-    }));
 }
 
 /* Everywhere --------------------------------------------------------------- */

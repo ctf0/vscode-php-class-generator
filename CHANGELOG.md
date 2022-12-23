@@ -96,3 +96,8 @@
 - remove config `phpClassGenerator.setNamespaceToAlias`
 - add new config `phpClassGenerator.openUnchangedFiles`
 - update rdme
+
+## 0.4.0
+
+- use regex to change the class references instead
+- remove ripgrip config and usage

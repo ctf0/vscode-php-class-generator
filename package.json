@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.3.4",
+    "version": "0.4.0",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -166,16 +166,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "add generic docblock to extract function results"
-                },
-                "phpClassGenerator.openUnchangedFiles": {
-                    "type": "boolean",
-                    "default": true,
-                    "markdownDescription": "open the files that cant be updated.\n\n([ripgrep](https://github.com/BurntSushi/ripgrep#installation) must be installed)"
-                },
-                "phpClassGenerator.rgCommand": {
-                    "type": "string",
-                    "default": "rg --files-with-matches --follow --no-messages --smart-case {REGEX} -g '**/*.php'",
-                    "markdownDescription": "ripgrep command (requires `#phpClassGenerator.openUnchangedFiles#`)\n\n{REGEX} is a placeholder, dont remove it"
                 }
             }
         }

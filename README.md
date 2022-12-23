@@ -12,15 +12,6 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 
 <br>
 
-## File Namespace Updates
-
-atm vscode cant auto save the references changes we make on class rename [issue #168825](https://github.com/microsoft/vscode/issues/168825) so as a way around,
-we will automatically open the files that needs changing manually.
-
-when the open ticket is resolved, the extension will update the references correctly without any work-arounds.
-
-<br>
-
 ## Test File Creation
 
 ```plain
