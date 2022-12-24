@@ -101,3 +101,7 @@
 
 - use regex to change the class references instead
 - remove ripgrip config and usage
+
+## 0.4.1
+
+- add extract to property

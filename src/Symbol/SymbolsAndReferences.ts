@@ -1,4 +1,3 @@
-import pRetry from 'p-retry';
 import * as vscode from 'vscode';
 
 export function extractNeededSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] {
@@ -13,17 +12,6 @@ export function extractNeededSymbols(symbols: vscode.DocumentSymbol[]): vscode.D
     return methods;
 }
 
-export async function getFileSymbols(uri: vscode.Uri): Promise<any> {
-    const wait = 500;
-
-    return pRetry(async () => {
-        const data: any = await vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
-
-        if (!data) {
-            await new Promise((r) => setTimeout(r, wait));
-            throw new Error('nothing found');
-        }
-
-        return data;
-    }, { retries: 5 });
+export async function getFileSymbols(uri: vscode.Uri): Promise<vscode.DocumentSymbol[] | undefined> {
+    return vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
 }

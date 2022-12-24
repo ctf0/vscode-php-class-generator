@@ -20,7 +20,12 @@ export function getDirNameFromPath(filePath) {
 }
 
 export async function getFileNamespace(uri: any = null) {
-    return NS_EXTENSION_PROVIDER.getNamespace(uri);
+    try {
+        return NS_EXTENSION_PROVIDER.getNamespace(uri);
+    } catch (error) {
+        // console.error(error);
+        return undefined;
+    }
 }
 
 export function showMessage(msg, error = false, items: any = []) {

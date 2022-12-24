@@ -8,7 +8,7 @@ export default class CodeAction implements vscode.CodeActionProvider {
             return;
         }
 
-        const symbols: vscode.DocumentSymbol[] = await helpers.getFileSymbols(document.uri);
+        const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
             const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
@@ -16,14 +16,27 @@ export default class CodeAction implements vscode.CodeActionProvider {
             if (!_methodsOrFunctions?.length) {
                 return;
             }
+        } else {
+            return;
         }
 
-        return [
+        const commands = [
             {
                 command : `${utils.PACKAGE_CMND_NAME}.extract_to_function`,
-                title   : "Extract To Function",
+                title   : "Extract To Method/Function",
             },
-        ].map((item) => this.createCommand(item));
+        ];
+
+        if (!vscode.window.activeTextEditor?.selections.some((item) => document.getText(item).trim().startsWith('return'))) {
+            commands.push(
+                {
+                    command : `${utils.PACKAGE_CMND_NAME}.extract_to_property`,
+                    title   : "Extract To Property",
+                },
+            );
+        }
+
+        return commands.map((item) => this.createCommand(item));
     }
 
     private createCommand(cmnd: { command: any; title: any; }): vscode.CodeAction {

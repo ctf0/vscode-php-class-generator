@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.4.0",
+    "version": "0.4.1",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -75,6 +75,11 @@
                     "command": "phpclassgen.extract_to_function",
                     "when": "editorLangId == php && editorHasSelection && !editorHasMultipleSelections",
                     "group": "phpclassgen"
+                },
+                {
+                    "command": "phpclassgen.extract_to_property",
+                    "when": "editorLangId == php && editorHasSelection",
+                    "group": "phpclassgen"
                 }
             ],
             "commandPalette": [
@@ -101,6 +106,10 @@
                 {
                     "command": "phpclassgen.extract_to_function",
                     "when": "editorLangId == php && editorHasSelection && !editorHasMultipleSelections"
+                },
+                {
+                    "command": "phpclassgen.extract_to_property",
+                    "when": "editorLangId == php && editorHasSelection"
                 }
             ]
         },
@@ -134,6 +143,11 @@
                 "command": "phpclassgen.extract_to_function",
                 "title": "Extract To Method/Function",
                 "category": "PHP Class Generator"
+            },
+            {
+                "command": "phpclassgen.extract_to_property",
+                "title": "Extract To Property",
+                "category": "PHP Class Generator"
             }
         ],
         "configuration": {
@@ -155,7 +169,8 @@
                 },
                 "phpClassGenerator.testFolderName": {
                     "type": "string",
-                    "default": "Tests"
+                    "default": "Tests",
+                    "description": "the folder name search is case-insensitive, so (tests or Tests) is the same"
                 },
                 "phpClassGenerator.showCodeLens": {
                     "type": "boolean",
@@ -189,8 +204,8 @@
         "fast-glob": "^3.2.12",
         "find-up": "^6.3.0",
         "fs-extra": "^11.1.0",
-        "p-retry": "^5.1.2",
         "pascal-case": "^3.1.2",
+        "php-parser": "^3.1.2",
         "replace-in-file": "^6.3.5"
     },
     "extensionDependencies": [
