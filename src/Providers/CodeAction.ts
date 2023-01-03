@@ -4,10 +4,12 @@ import * as utils from '../utils';
 
 export default class CodeAction implements vscode.CodeActionProvider {
     public async provideCodeActions(document: vscode.TextDocument, range: vscode.Range): Promise<vscode.CodeAction[] | undefined> {
-        if (range.isEmpty) {
+        if (range.isEmpty || !document) {
             return;
         }
 
+        // @ts-ignore
+        const { selections } = vscode.window.activeTextEditor;
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
@@ -16,18 +18,27 @@ export default class CodeAction implements vscode.CodeActionProvider {
             if (!_methodsOrFunctions?.length) {
                 return;
             }
+
+            if (
+                _methodsOrFunctions &&
+                utils.hasStartOrEndIntersection(selections, _methodsOrFunctions)
+            ) {
+                return;
+            }
         } else {
             return;
         }
 
-        const commands = [
-            {
+        const commands: any = [];
+
+        if (selections.length == 1) {
+            commands.push({
                 command : `${utils.PACKAGE_CMND_NAME}.extract_to_function`,
                 title   : "Extract To Method/Function",
-            },
-        ];
+            });
+        }
 
-        if (!vscode.window.activeTextEditor?.selections.some((item) => document.getText(item).trim().startsWith('return'))) {
+        if (!selections.some((item) => document.getText(item).trim().startsWith('return'))) {
             commands.push(
                 {
                     command : `${utils.PACKAGE_CMND_NAME}.extract_to_property`,
@@ -39,7 +50,7 @@ export default class CodeAction implements vscode.CodeActionProvider {
         return commands.map((item) => this.createCommand(item));
     }
 
-    private createCommand(cmnd: { command: any; title: any; }): vscode.CodeAction {
+    private createCommand(cmnd: { command: string; title: string; }): vscode.CodeAction {
         const action = new vscode.CodeAction(cmnd.title, vscode.CodeActionKind.RefactorExtract);
         action.command = { command: cmnd.command, title: cmnd.title };
 

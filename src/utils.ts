@@ -58,3 +58,11 @@ export function setConfig() {
         ...Object.keys(searchConfig.exclude),
     ])];
 }
+
+export function hasStartOrEndIntersection(selections, DocumentSymbol): any {
+    return DocumentSymbol.find((item) => {
+        if (selections.find((sel) => item.range.start.line === sel.start.line || item.range.end.line === sel.end.line)) {
+            return item;
+        }
+    });
+}

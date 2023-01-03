@@ -105,3 +105,8 @@
 ## 0.4.1
 
 - add extract to property
+
+## 0.4.2
+
+- dont show extract to action if selection is on the same start or end method/function line
+- make sure extract to function doesnt work with multiple selections

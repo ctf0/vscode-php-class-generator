@@ -76,13 +76,23 @@ export async function extractToFunction() {
     const editor = vscode.window.activeTextEditor;
 
     if (editor) {
-        const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(editor.document.uri);
+        const { selections, document } = editor;
+
+        if (selections.length > 1) {
+            return utils.showMessage('extract to function doesnt work with multiple selections');
+        }
+
+        const selection = selections[0];
+        const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
             const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
 
             if (_methodsOrFunctions.length) {
-                const { selection, document } = editor;
+                if (utils.hasStartOrEndIntersection(selections, _methodsOrFunctions)) {
+                    return utils.showMessage('selection cant be at the same line of f/m start or end line');
+                }
+
                 const methodName = await vscode.window.showInputBox({
                     placeHolder: 'function name',
                 });
@@ -154,6 +164,10 @@ export async function extractToProperty() {
             const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
 
             if (_methodsOrFunctions.length) {
+                if (utils.hasStartOrEndIntersection(selections, _methodsOrFunctions)) {
+                    return utils.showMessage('selection cant be at the same line of f/m start or end line');
+                }
+
                 let propertyName: any = await vscode.window.showInputBox({
                     placeHolder: 'property name',
                 });
