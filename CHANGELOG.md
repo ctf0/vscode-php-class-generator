@@ -110,3 +110,7 @@
 
 - dont show extract to action if selection is on the same start or end method/function line
 - make sure extract to function doesnt work with multiple selections
+
+## 0.4.3
+
+- add new config `phpClassGenerator.enableCodeActions` to enable/disable code actions
