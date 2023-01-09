@@ -10,3 +10,4 @@ vsc-extension-quickstart.md
 jsconfig.json
 .eslintrc.json
 *.vsix
+src/**
