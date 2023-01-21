@@ -211,7 +211,7 @@ async function updateEverywhereForFiles(
 
 /* Helpers ------------------------------------------------------------------ */
 
-async function getNamespaceFromPath(filePath: string) {
+function getNamespaceFromPath(filePath: string) {
     return utils.getFileNamespace(vscode.Uri.file(filePath));
 }
 

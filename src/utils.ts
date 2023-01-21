@@ -19,7 +19,7 @@ export function getDirNameFromPath(filePath) {
     return path.parse(filePath).dir;
 }
 
-export async function getFileNamespace(uri: any = null) {
+export function getFileNamespace(uri?: vscode.Uri) {
     try {
         return NS_EXTENSION_PROVIDER.getNamespace(uri);
     } catch (error) {

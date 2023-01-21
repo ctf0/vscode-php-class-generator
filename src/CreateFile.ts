@@ -1,12 +1,12 @@
 import fs from 'fs-extra';
-import { pascalCase } from "pascal-case";
+import { pascalCase } from 'pascal-case';
 import * as vscode from 'vscode';
 import * as utils from './utils';
 
 async function generateCode(filePath, prefix) {
     const cn = pascalCase(utils.getFileNameFromPath(filePath));
     let declaration = `${prefix} ${cn}`;
-    const namespace = await utils.getFileNamespace() || '';
+    const namespace = await utils.getFileNamespace(vscode.Uri.file(filePath)) || '';
 
     if (prefix == 'class') {
         declaration = `\${1|abstract ,final |}class ${cn}\${2: \${3|extends ,implements |}\$4}`;
@@ -17,7 +17,7 @@ async function generateCode(filePath, prefix) {
     }
 
     return '<?php\n' +
-        `${namespace}\n` +
+        namespace +
         `${declaration}\n` +
         '{\n' +
         '  $0' +
