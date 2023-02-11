@@ -6,7 +6,7 @@ import * as utils from './utils';
 async function generateCode(filePath, prefix) {
     const cn = pascalCase(utils.getFileNameFromPath(filePath));
     let declaration = `${prefix} ${cn}`;
-    const namespace = await utils.getFileNamespace(vscode.Uri.file(filePath)) || '';
+    const namespace = await utils.getFileNamespace(vscode.Uri.file(filePath)) || '\n';
 
     if (prefix == 'class') {
         declaration = `\${1|abstract ,final |}class ${cn}\${2: \${3|extends ,implements |}\$4}`;
