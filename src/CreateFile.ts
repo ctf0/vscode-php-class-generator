@@ -9,7 +9,7 @@ async function generateCode(filePath, prefix) {
     const namespace = await utils.getFileNamespace(vscode.Uri.file(filePath)) || '\n';
 
     if (prefix == 'class') {
-        declaration = `\${1|abstract ,final |}class ${cn}\${2: \${3|extends ,implements |}\$4}`;
+        declaration = `\${1|readonly, abstract ,final |}class ${cn}\${2: \${3|extends ,implements |}\$4}`;
     }
 
     if (prefix == 'interface') {
