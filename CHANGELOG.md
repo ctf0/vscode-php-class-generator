@@ -114,3 +114,9 @@
 ## 0.4.3
 
 - add new config `phpClassGenerator.enableCodeActions` to enable/disable code actions
+
+## 0.4.8
+
+- make sure code action/lens updates on config change
+- make sure to cleanup double `$` of property name extraction
+- group menu items to submenu to save space in the context menu

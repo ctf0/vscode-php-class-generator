@@ -24,13 +24,15 @@ export async function extractToFunction() {
                     return utils.showMessage('selection cant be at the same line of f/m start or end line');
                 }
 
-                const methodName = await vscode.window.showInputBox({
+                let methodName = await vscode.window.showInputBox({
                     placeHolder: 'function name',
                 });
 
                 if (!methodName) {
                     return utils.showMessage('please enter a method/function name');
                 }
+
+                methodName = methodName.replace(/^\$/, '');
 
                 if (_methodsOrFunctions.some((item) => item.name == methodName)) {
                     return utils.showMessage('method already exists', true);
@@ -106,6 +108,8 @@ export async function extractToProperty() {
                 if (!propertyName) {
                     return utils.showMessage('please enter a property name');
                 }
+
+                propertyName = propertyName.replace(/^\$/, '');
 
                 const firstSelection = selections[0];
                 const cursorIntersection: any = _methodsOrFunctions.find((item: vscode.DocumentSymbol) => item.range.intersection(firstSelection));

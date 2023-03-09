@@ -34,20 +34,10 @@ export async function activate(context) {
         vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.extract_to_property`, async () => await _refactor.extractToProperty()),
         vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.open_test_file`, async (path) => await utils.openFile(path)),
 
+        vscode.languages.registerCodeLensProvider(['php'], new CodeLens()),
+        vscode.languages.registerCodeActionsProvider(['php'], new CodeAction()),
         vscode.workspace.onDidRenameFiles(async (event: vscode.FileRenameEvent) => await updateNamespace(event)),
     );
-
-    if (utils.config.showCodeLens) {
-        context.subscriptions.push(
-            vscode.languages.registerCodeLensProvider(['php'], new CodeLens()),
-        );
-    }
-
-    if (utils.config.enableCodeActions) {
-        context.subscriptions.push(
-            vscode.languages.registerCodeActionsProvider(['php'], new CodeAction()),
-        );
-    }
 }
 
 async function createFile(folder, type) {

@@ -4,7 +4,7 @@ import * as utils from '../utils';
 
 export default class CodeAction implements vscode.CodeActionProvider {
     public async provideCodeActions(document: vscode.TextDocument, range: vscode.Range): Promise<vscode.CodeAction[] | undefined> {
-        if (range.isEmpty || !document) {
+        if (range.isEmpty || !document || !utils.config.enableCodeActions) {
             return;
         }
 
@@ -34,7 +34,7 @@ export default class CodeAction implements vscode.CodeActionProvider {
         if (selections.length == 1) {
             commands.push({
                 command : `${utils.PACKAGE_CMND_NAME}.extract_to_function`,
-                title   : "Extract To Method/Function",
+                title   : 'Extract To Method/Function',
             });
         }
 
@@ -42,7 +42,7 @@ export default class CodeAction implements vscode.CodeActionProvider {
             commands.push(
                 {
                     command : `${utils.PACKAGE_CMND_NAME}.extract_to_property`,
-                    title   : "Extract To Property",
+                    title   : 'Extract To Property',
                 },
             );
         }

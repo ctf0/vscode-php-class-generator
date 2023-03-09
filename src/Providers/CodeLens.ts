@@ -4,6 +4,11 @@ import * as utils from '../utils';
 export default class CodeLens implements vscode.CodeLensProvider {
     async provideCodeLenses(doc: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         const links: any = [];
+
+        if (!utils.config.showCodeLens) {
+            return links;
+        }
+
         const types = utils.config.testTypes.join('|');
 
         if (doc !== undefined) {
@@ -51,7 +56,7 @@ export default class CodeLens implements vscode.CodeLensProvider {
                     links.push(
                         new vscode.CodeLens(range, {
                             command   : `${utils.PACKAGE_CMND_NAME}.open_test_file`,
-                            title     : `$(debug-disconnect) Go To Abstraction`,
+                            title     : '$(debug-disconnect) Go To Abstraction',
                             arguments : [files[0].path],
                         }),
                     );

@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.4.7",
+    "version": "0.4.8",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -17,8 +17,60 @@
     "repository": "https://github.com/ctf0/vscode-php-class-generator",
     "main": "./out/main",
     "contributes": {
+        "submenus": [
+            {
+                "id": "phpclassgen.editor.context",
+                "label": "PHP Class Generator"
+            },
+            {
+                "id": "phpclassgen.explorer.context",
+                "label": "PHP Class Generator"
+            }
+        ],
         "menus": {
+            "commandPalette": [
+                {
+                    "command": "phpclassgen.generate_class",
+                    "when": "editorLangId == php"
+                },
+                {
+                    "command": "phpclassgen.generate_interface",
+                    "when": "editorLangId == php"
+                },
+                {
+                    "command": "phpclassgen.generate_trait",
+                    "when": "editorLangId == php"
+                },
+                {
+                    "command": "phpclassgen.generate_enum",
+                    "when": "editorLangId == php"
+                },
+                {
+                    "command": "phpclassgen.generate_test_for_file",
+                    "when": "editorLangId == php"
+                },
+                {
+                    "command": "phpclassgen.extract_to_function",
+                    "when": "editorLangId == php && editorHasSelection && !editorHasMultipleSelections"
+                },
+                {
+                    "command": "phpclassgen.extract_to_property",
+                    "when": "editorLangId == php && editorHasSelection"
+                }
+            ],
+            "editor/context": [
+                {
+                    "submenu": "phpclassgen.editor.context",
+                    "group": "phpclassgen"
+                }
+            ],
             "explorer/context": [
+                {
+                    "submenu": "phpclassgen.explorer.context",
+                    "group": "phpclassgen"
+                }
+            ],
+            "phpclassgen.explorer.context": [
                 {
                     "command": "phpclassgen.generate_class",
                     "when": "explorerResourceIsFolder",
@@ -45,7 +97,7 @@
                     "group": "phpclassgen"
                 }
             ],
-            "editor/context": [
+            "phpclassgen.editor.context": [
                 {
                     "command": "phpclassgen.generate_class",
                     "when": "editorLangId == php",
@@ -80,36 +132,6 @@
                     "command": "phpclassgen.extract_to_property",
                     "when": "editorLangId == php && editorHasSelection",
                     "group": "phpclassgen"
-                }
-            ],
-            "commandPalette": [
-                {
-                    "command": "phpclassgen.generate_class",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpclassgen.generate_interface",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpclassgen.generate_trait",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpclassgen.generate_enum",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpclassgen.generate_test_for_file",
-                    "when": "editorLangId == php"
-                },
-                {
-                    "command": "phpclassgen.extract_to_function",
-                    "when": "editorLangId == php && editorHasSelection && !editorHasMultipleSelections"
-                },
-                {
-                    "command": "phpclassgen.extract_to_property",
-                    "when": "editorLangId == php && editorHasSelection"
                 }
             ]
         },
