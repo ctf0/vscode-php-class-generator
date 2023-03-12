@@ -34,6 +34,10 @@ export function showMessage(msg, error = false, items: any = []) {
         : vscode.window.showInformationMessage(`PHP Class Generator: ${msg}`, ...items);
 }
 
+export function showWarningMessage(msg, items: any = []) {
+    return vscode.window.showWarningMessage(`PHP Class Generator: ${msg}`, ...items);
+}
+
 export async function NsExtensionProviderInit() {
     const nsResolverExtension = vscode.extensions.getExtension('ctf0.php-namespace-resolver');
 

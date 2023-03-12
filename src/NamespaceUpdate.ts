@@ -6,20 +6,21 @@ import * as vscode from 'vscode';
 import * as utils from './utils';
 
 const TYPES = 'class|interface|enum|trait';
-const TYPES_REG = new RegExp(TYPES);
 const NAMESPACE_REG = /^namespace/m;
 const ERROR_MSG = 'nothing changed as we cant correctly update references';
 const EXT = '.php';
 
 export default async function updateNamespace(event: vscode.FileRenameEvent) {
-    const files = event.files;
+    if (!utils.config.updateFileAndReferenceOnRename) {
+        return false;
+    }
 
     vscode.window.withProgress({
         location    : vscode.ProgressLocation.Notification,
         cancellable : false,
         title       : 'Updating Please Wait',
     }, async () => {
-        for (const file of files) {
+        for (const file of event.files) {
             const from = file.oldUri.fsPath;
             const to = file.newUri.fsPath;
             const _scheme = await fs.stat(to);
@@ -43,13 +44,13 @@ export default async function updateNamespace(event: vscode.FileRenameEvent) {
                         }
 
                         if (await updateFileNamespace(to)) {
-                            await updateEverywhereForFiles(to, _to, _from);
+                            await updateOldNSPathEverywhere(to, _to, _from);
                         }
                     }
                     // new file name
                     else {
-                        if (await updateFileContentByFileName(to, from)) {
-                            await replaceFileNamespaceOnRename(to, from);
+                        if (await updateFileTypeNameByFileName(to, from)) {
+                            await updateFileTypeContentEverywhere(to, from);
                         }
                     }
                 }
@@ -96,17 +97,16 @@ async function updateFileNamespace(fileToPath: string) {
 
 /* Files Rename ------------------------------------------------------------- */
 
-async function updateFileContentByFileName(fileToPath: string, fileFromPath: string) {
+async function updateFileTypeNameByFileName(fileToPath: string, fileFromPath: string) {
     const { _from, _to } = await getFileNameAndNamespace(fileToPath, fileFromPath);
 
     const results: any = await replace.replaceInFile({
         files     : fileToPath,
         // @ts-ignore
         processor : (input: string) => {
-            // if it has a namespace then its probably a class
-            if (input.match(TYPES_REG) && input.match(NAMESPACE_REG)) {
-                // update only the class name & nothing else
-                const match = input.match(`(${TYPES}) ${escapeStringRegexp(_from.name)}`);
+            if (input.match(new RegExp(`^(${TYPES})`, 'm'))) {
+                // update only the type name & nothing else
+                const match = input.match(new RegExp(`^(${TYPES}) ${escapeStringRegexp(_from.name)}`, 'm'));
 
                 if (match) {
                     input = input.replace(match[0], `${match[1]} ${_to.name}`);
@@ -120,7 +120,7 @@ async function updateFileContentByFileName(fileToPath: string, fileFromPath: str
     return results[0].hasChanged;
 }
 
-async function replaceFileNamespaceOnRename(fileToPath: string, fileFromPath: string) {
+async function updateFileTypeContentEverywhere(fileToPath: string, fileFromPath: string) {
     const { _from, _to } = await getFileNameAndNamespace(fileToPath, fileFromPath);
 
     const fromClass = _from.name;
@@ -192,7 +192,7 @@ async function updateEverywhereForDirs(
     });
 }
 
-async function updateEverywhereForFiles(
+async function updateOldNSPathEverywhere(
     fileToPath: string,
     _to: { name?: string; namespace: string; },
     _from: { name?: string; namespace: string; },

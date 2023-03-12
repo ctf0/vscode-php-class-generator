@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.4.8",
+    "version": "0.5.0",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -208,6 +208,11 @@
                     "type": "boolean",
                     "default": true,
                     "description": "enable code actions"
+                },
+                "phpClassGenerator.updateFileAndReferenceOnRename": {
+                    "type": "boolean",
+                    "default": true,
+                    "description": "update file content & its reference everywhere when renamed"
                 }
             }
         }

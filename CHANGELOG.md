@@ -120,3 +120,7 @@
 - make sure code action/lens updates on config change
 - make sure to cleanup double `$` of property name extraction
 - group menu items to submenu to save space in the context menu
+
+## 0.5.0
+
+- add new config `phpClassGenerator.updateFileAndReferenceOnRename`
