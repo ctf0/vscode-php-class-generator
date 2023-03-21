@@ -147,3 +147,57 @@ export async function extractToProperty() {
         }
     }
 }
+
+export async function addMissingFunction() {
+    const editor = vscode.window.activeTextEditor;
+
+    if (editor) {
+        const { selections, document } = editor;
+
+        if (selections.length > 1) {
+            return utils.showMessage('add missing function doesnt work with multiple selections');
+        }
+
+        const selection = selections[0];
+        const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
+
+        if (symbols) {
+            const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
+
+            if (_methodsOrFunctions.length) {
+                const wordRange = document.getWordRangeAtPosition(selection.active, /\w+\(.*?\)/);
+
+                if (wordRange) {
+                    const methodAndParams = document.getText(wordRange);
+                    const methodName = methodAndParams.replace(/\(.*/, '');
+
+                    if (!_methodsOrFunctions.some((item) => item.name == methodName)) {
+                        const cursorIntersection = _methodsOrFunctions.find((item: vscode.DocumentSymbol) => item.range.intersection(selection));
+                        const isFunction = cursorIntersection?.kind == vscode.SymbolKind.Function;
+
+                        if (cursorIntersection) {
+                            let activeLine = document.lineAt(cursorIntersection.range.start.line);
+                            const indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
+                            let contentIndentation = '';
+
+                            if (!indentation) {
+                                activeLine = document.lineAt(selection.start.line);
+                                contentIndentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
+                            }
+
+                            const methodType = isFunction ? '' : 'private ';
+                            const methodContent = '\n\n' +
+                                `${indentation}${methodType}function ${methodAndParams}\n` +
+                                `${indentation}{\n` +
+                                `${indentation}}`;
+
+                            await editor.edit((edit: vscode.TextEditorEdit) => {
+                                edit.insert(cursorIntersection.range.end, methodContent);
+                            }, { undoStopBefore: false, undoStopAfter: false });
+                        }
+                    }
+                }
+            }
+        }
+    }
+}

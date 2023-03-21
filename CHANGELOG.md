@@ -124,3 +124,7 @@
 ## 0.5.0
 
 - add new config `phpClassGenerator.updateFileAndReferenceOnRename`
+
+## 0.5.1
+
+- add new command/code action `phpclassgen.add_missing_function`

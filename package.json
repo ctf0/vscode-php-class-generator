@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.5.0",
+    "version": "0.5.1",
     "publisher": "ctf0",
     "engines": {
         "vscode": "^1.68.0"
@@ -56,6 +56,10 @@
                 {
                     "command": "phpclassgen.extract_to_property",
                     "when": "editorLangId == php && editorHasSelection"
+                },
+                {
+                    "command": "phpclassgen.add_missing_function",
+                    "when": "editorLangId == php && !editorHasSelection && !editorHasMultipleSelections"
                 }
             ],
             "editor/context": [
@@ -132,6 +136,11 @@
                     "command": "phpclassgen.extract_to_property",
                     "when": "editorLangId == php && editorHasSelection",
                     "group": "phpclassgen"
+                },
+                {
+                    "command": "phpclassgen.add_missing_function",
+                    "when": "editorLangId == php && !editorHasSelection && !editorHasMultipleSelections",
+                    "group": "phpclassgen"
                 }
             ]
         },
@@ -169,6 +178,11 @@
             {
                 "command": "phpclassgen.extract_to_property",
                 "title": "Extract To Property",
+                "category": "PHP Class Generator"
+            },
+            {
+                "command": "phpclassgen.add_missing_function",
+                "title": "Add Missing Method/Function Declaration",
                 "category": "PHP Class Generator"
             }
         ],
