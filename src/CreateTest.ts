@@ -22,7 +22,7 @@ export async function createTest(e) {
             const docName = utils.getFileNameFromPath(docPath);
             const docDir = utils.getDirNameFromPath(docPath);
 
-            const foundDir: any = await findUp(
+            const testDir: any = await findUp(
                 async (directory) => await pathExists(path.join(directory, testFolderName)) && directory,
                 {
                     cwd  : docDir,
@@ -30,12 +30,12 @@ export async function createTest(e) {
                 },
             );
 
-            if (foundDir) {
+            if (testDir) {
                 const type = 'class';
                 const testName = `${docName}Test`;
 
                 for (const testType of selectedTestTypes) {
-                    const testPath = `${foundDir}/${testFolderName}/${testType}` + docDir.replace(foundDir, '');
+                    const testPath = `${testDir}/${testFolderName}/${testType}` + docDir.replace(testDir, '');
 
                     try {
                         await _file.createFile(testPath, type, testName);

@@ -8,16 +8,22 @@ export default class CodeAction implements vscode.CodeActionProvider {
             return;
         }
 
+        const editor = vscode.window.activeTextEditor;
+
+        if (!editor) {
+            return;
+        }
+
         const commands: any = [];
 
         // @ts-ignore
-        const { selections } = vscode.window.activeTextEditor;
+        const { selections } = editor;
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
-            const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
+            const _methodsOrFunctions: vscode.DocumentSymbol[] | undefined = await helpers.extractNeededSymbols(symbols);
 
-            if (!_methodsOrFunctions?.length) {
+            if (!_methodsOrFunctions) {
                 return;
             }
 
@@ -29,10 +35,11 @@ export default class CodeAction implements vscode.CodeActionProvider {
             }
 
             if (range.isEmpty) {
-                const wordRange = document.getWordRangeAtPosition(selections[0].active, /\w+(?=\()/);
+                // add_missing_function
+                const methodWordRange = document.getWordRangeAtPosition(selections[0].active, /\w+(?=\()/);
 
-                if (wordRange) {
-                    const methodName = document.getText(wordRange);
+                if (methodWordRange) {
+                    const methodName = document.getText(methodWordRange);
 
                     if (!_methodsOrFunctions.some((item) => item.name == methodName)) {
                         commands.push(
@@ -43,12 +50,27 @@ export default class CodeAction implements vscode.CodeActionProvider {
                         );
                     }
                 }
+
+                // generate_test_for_file
+                const classWordRange = document.getWordRangeAtPosition(selections[0].active, /\w+/);
+
+                if (classWordRange) {
+                    const _classOrInterface: vscode.DocumentSymbol | undefined = await helpers.extractClassOrInterface(symbols, true);
+
+                    if (_classOrInterface && _classOrInterface.name == document.getText(classWordRange)) {
+                        commands.push({
+                            command : `${utils.PACKAGE_CMND_NAME}.generate_test_for_file`,
+                            title   : 'Generate Tests For File',
+                        });
+                    }
+                }
             }
         } else {
             return;
         }
 
         if (!range.isEmpty) {
+            // extract_to_function
             if (selections.length == 1) {
                 commands.push({
                     command : `${utils.PACKAGE_CMND_NAME}.extract_to_function`,
@@ -56,6 +78,7 @@ export default class CodeAction implements vscode.CodeActionProvider {
                 });
             }
 
+            // extract_to_property
             if (!selections.some((item) => document.getText(item).trim().startsWith('return'))) {
                 commands.push(
                     {

@@ -128,3 +128,7 @@
 ## 0.5.1
 
 - add new command/code action `phpclassgen.add_missing_function`
+
+## 0.5.2
+
+- add cmnd `generate file tests` to the code actions
