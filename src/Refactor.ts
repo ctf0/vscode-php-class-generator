@@ -165,10 +165,11 @@ export async function addMissingFunction() {
             const _methodsOrFunctions = await helpers.extractMethodSymbols(symbols);
 
             if (_methodsOrFunctions && _methodsOrFunctions.length) {
-                const wordRange = document.getWordRangeAtPosition(selection.active, /(?<=(:|\$this->))\w+\(.*?\)/);
+                const wordRange = document.getWordRangeAtPosition(selection.active, /(?<=(:|\$this->))\w+\(.*?\)?/);
 
                 if (wordRange) {
-                    const methodAndParams = document.getText(wordRange);
+                    let methodAndParams = document.getText(wordRange);
+                    methodAndParams = methodAndParams.endsWith(')') ? methodAndParams : `${methodAndParams})`;
 
                     const cursorIntersection = _methodsOrFunctions.find((item: vscode.DocumentSymbol) => item.range.intersection(selection));
                     const isFunction = cursorIntersection?.kind == vscode.SymbolKind.Function;
