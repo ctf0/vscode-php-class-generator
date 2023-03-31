@@ -17,9 +17,9 @@ export async function extractToFunction() {
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
-            const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
+            const _methodsOrFunctions = await helpers.extractMethodSymbols(symbols);
 
-            if (_methodsOrFunctions.length) {
+            if (_methodsOrFunctions && _methodsOrFunctions.length) {
                 if (utils.hasStartOrEndIntersection(selections, _methodsOrFunctions)) {
                     return utils.showMessage('selection cant be at the same line of f/m start or end line');
                 }
@@ -94,9 +94,9 @@ export async function extractToProperty() {
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(editor.document.uri);
 
         if (symbols) {
-            const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
+            const _methodsOrFunctions = await helpers.extractMethodSymbols(symbols);
 
-            if (_methodsOrFunctions.length) {
+            if (_methodsOrFunctions && _methodsOrFunctions.length) {
                 if (utils.hasStartOrEndIntersection(selections, _methodsOrFunctions)) {
                     return utils.showMessage('selection cant be at the same line of f/m start or end line');
                 }
@@ -162,40 +162,95 @@ export async function addMissingFunction() {
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
-            const _methodsOrFunctions = await helpers.extractNeededSymbols(symbols);
+            const _methodsOrFunctions = await helpers.extractMethodSymbols(symbols);
 
-            if (_methodsOrFunctions.length) {
-                const wordRange = document.getWordRangeAtPosition(selection.active, /\w+\(.*?\)/);
+            if (_methodsOrFunctions && _methodsOrFunctions.length) {
+                const wordRange = document.getWordRangeAtPosition(selection.active, /(?<=(:|\$this->))\w+\(.*?\)/);
 
                 if (wordRange) {
                     const methodAndParams = document.getText(wordRange);
-                    const methodName = methodAndParams.replace(/\(.*/, '');
 
-                    if (!_methodsOrFunctions.some((item) => item.name == methodName)) {
-                        const cursorIntersection = _methodsOrFunctions.find((item: vscode.DocumentSymbol) => item.range.intersection(selection));
-                        const isFunction = cursorIntersection?.kind == vscode.SymbolKind.Function;
+                    const cursorIntersection = _methodsOrFunctions.find((item: vscode.DocumentSymbol) => item.range.intersection(selection));
+                    const isFunction = cursorIntersection?.kind == vscode.SymbolKind.Function;
 
-                        if (cursorIntersection) {
-                            let activeLine = document.lineAt(cursorIntersection.range.start.line);
-                            const indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
-                            let contentIndentation = '';
+                    if (cursorIntersection) {
+                        let activeLine = document.lineAt(cursorIntersection.range.start.line);
+                        let indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
 
-                            if (!indentation) {
-                                activeLine = document.lineAt(selection.start.line);
-                                contentIndentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
-                            }
-
-                            const methodType = isFunction ? '' : 'private ';
-                            const methodContent = '\n\n' +
-                                `${indentation}${methodType}function ${methodAndParams}\n` +
-                                `${indentation}{\n` +
-                                `${indentation}}`;
-
-                            await editor.edit((edit: vscode.TextEditorEdit) => {
-                                edit.insert(cursorIntersection.range.end, methodContent);
-                            }, { undoStopBefore: false, undoStopAfter: false });
+                        if (!indentation) {
+                            activeLine = document.lineAt(selection.start.line);
+                            indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
                         }
+
+                        const methodType = isFunction ? '' : 'private ';
+                        const methodContent = '\n\n' +
+                            `${indentation}${methodType}function ${methodAndParams}\n` +
+                            `${indentation}{\n` +
+                            `${indentation}${indentation}throw new \\Exception(__FUNCTION__ . ' not implemented.');\n` +
+                            `${indentation}}`;
+
+                        await editor.edit((edit: vscode.TextEditorEdit) => {
+                            edit.insert(cursorIntersection.range.end, methodContent);
+                        }, { undoStopBefore: false, undoStopAfter: false });
                     }
+                }
+            }
+        }
+    }
+}
+
+export async function addMissingProperty() {
+    const editor = vscode.window.activeTextEditor;
+
+    if (editor) {
+        const { selections, document } = editor;
+
+        if (selections.length > 1) {
+            return utils.showMessage('add missing property doesnt work with multiple selections');
+        }
+
+        const selection = selections[0];
+        const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
+
+        if (symbols) {
+            const wordRange = document.getWordRangeAtPosition(selection.active, /(?<=(:\$|\$this->))\w+\b(?!\()/);
+
+            if (wordRange) {
+                const propName = document.getText(wordRange);
+
+                let cursorInsertion = helpers.extractClassSymbols(symbols);
+
+                if (!cursorInsertion) {
+                    return;
+                }
+
+                // @ts-ignore
+                cursorInsertion = cursorInsertion[0];
+
+                if (cursorInsertion) {
+                    // @ts-ignore
+                    let activeLine = document.lineAt(cursorInsertion.range.start.line);
+                    let indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
+
+                    if (!indentation) {
+                        activeLine = document.lineAt(selection.start.line);
+                        indentation = activeLine.text.substring(0, activeLine.firstNonWhitespaceCharacterIndex);
+                    }
+
+                    const propContent = `\n${indentation}private \$${propName};\n`;
+
+                    await editor.edit((edit: vscode.TextEditorEdit) => {
+                        edit.insert(
+                            new vscode.Position(
+                                // @ts-ignore
+                                cursorInsertion.range.end.line + 1,
+                                0,
+                            ),
+                            propContent,
+                        );
+                    }, { undoStopBefore: false, undoStopAfter: false });
+
+                    await vscode.commands.executeCommand('editor.action.peekDefinition');
                 }
             }
         }

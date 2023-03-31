@@ -127,8 +127,14 @@
 
 ## 0.5.1
 
-- add new command/code action `phpclassgen.add_missing_function`
+- add new command/code action `Add Missing Method/Function Declaration`
 
 ## 0.5.2
 
 - add cmnd `generate file tests` to the code actions
+
+## 0.5.3
+
+- add new `Add Missing Property` to the code actions
+- fix `Add Missing Method/Function Declaration` scope
+- remove `Add Missing Method/Function Declaration` from context menu & command palette

@@ -21,7 +21,7 @@ export default class CodeAction implements vscode.CodeActionProvider {
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(document.uri);
 
         if (symbols) {
-            const _methodsOrFunctions: vscode.DocumentSymbol[] | undefined = await helpers.extractNeededSymbols(symbols);
+            const _methodsOrFunctions: vscode.DocumentSymbol[] | undefined = await helpers.extractMethodSymbols(symbols);
 
             if (!_methodsOrFunctions) {
                 return;
@@ -35,8 +35,10 @@ export default class CodeAction implements vscode.CodeActionProvider {
             }
 
             if (range.isEmpty) {
+                const activeSelection = selections[0].active;
+
                 // add_missing_function
-                const methodWordRange = document.getWordRangeAtPosition(selections[0].active, /\w+(?=\()/);
+                const methodWordRange = document.getWordRangeAtPosition(activeSelection, /(?<=(:|\$this->))\w+(?=\()/);
 
                 if (methodWordRange) {
                     const methodName = document.getText(methodWordRange);
@@ -51,8 +53,25 @@ export default class CodeAction implements vscode.CodeActionProvider {
                     }
                 }
 
+                // add_missing_prop
+                const propWordRange = document.getWordRangeAtPosition(activeSelection, /(?<=(:\$|\$this->))\w+\b(?!\()/);
+
+                if (propWordRange) {
+                    const propName = document.getText(propWordRange);
+                    const _props: vscode.DocumentSymbol[] | undefined = await helpers.extractPropSymbols(symbols);
+
+                    if (!_props || !_props.some((item) => item.name == `\$${propName}`)) {
+                        commands.push(
+                            {
+                                command : `${utils.PACKAGE_CMND_NAME}.add_missing_prop`,
+                                title   : 'Add Missing Property',
+                            },
+                        );
+                    }
+                }
+
                 // generate_test_for_file
-                const classWordRange = document.getWordRangeAtPosition(selections[0].active, /\w+/);
+                const classWordRange = document.getWordRangeAtPosition(activeSelection, /\w+/);
 
                 if (classWordRange) {
                     const _classOrInterface: vscode.DocumentSymbol | undefined = await helpers.extractClassOrInterface(symbols, true);

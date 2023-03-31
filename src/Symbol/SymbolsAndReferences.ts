@@ -1,13 +1,21 @@
 import * as vscode from 'vscode';
 
-export function extractNeededSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] | undefined {
-    let methods = extractClassOrInterface(symbols)?.children.filter((item) => item.kind === vscode.SymbolKind.Method);
+export function extractMethodSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] | undefined {
+    let methods = extractClassSymbols(symbols)?.filter((item) => item.kind === vscode.SymbolKind.Method);
 
     if (!methods?.length) {
         methods = symbols.filter((symbol: vscode.DocumentSymbol) => symbol.kind === vscode.SymbolKind.Function);
     }
 
     return methods;
+}
+
+export function extractPropSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] | undefined {
+    return extractClassSymbols(symbols)?.filter((item) => item.kind === vscode.SymbolKind.Property);
+}
+
+export function extractClassSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] | undefined {
+    return extractClassOrInterface(symbols)?.children;
 }
 
 export function extractClassOrInterface(symbols: vscode.DocumentSymbol[], includeInterface = false): vscode.DocumentSymbol | undefined {
