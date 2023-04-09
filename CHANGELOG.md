@@ -138,3 +138,7 @@
 - add new `Add Missing Property` to the code actions
 - fix `Add Missing Method/Function Declaration` scope
 - remove `Add Missing Method/Function Declaration` from context menu & command palette
+
+## 0.5.5
+
+- remove code refactor and move it to its own extension

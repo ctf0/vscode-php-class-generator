@@ -10,10 +10,6 @@ export function extractMethodSymbols(symbols: vscode.DocumentSymbol[]): vscode.D
     return methods;
 }
 
-export function extractPropSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] | undefined {
-    return extractClassSymbols(symbols)?.filter((item) => item.kind === vscode.SymbolKind.Property);
-}
-
 export function extractClassSymbols(symbols: vscode.DocumentSymbol[]): vscode.DocumentSymbol[] | undefined {
     return extractClassOrInterface(symbols)?.children;
 }
