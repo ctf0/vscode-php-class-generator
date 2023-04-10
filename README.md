@@ -8,9 +8,6 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 - support updating file/s namespace on `move/rename`
     - glob exclude is populated from both `files.watcherExclude` & `search.exclude`
     - make sure to run `composer dump-autoload` b4 deploying to update its files
-- add (basic) extract selection to method/property "selection must be inside a method/function"
-    - new method/function will be added right after the selection method/function
-    - make sure you have ([intelephense](https://marketplace.visualstudio.com/items?itemName=bmewburn.vscode-intelephense-client), [phptools](https://marketplace.visualstudio.com/items?itemName=DEVSENSE.phptools-vscode), etc..) so we can collect document symbols to work with
 
 <br>
 
