@@ -1,7 +1,6 @@
 import * as vscode from 'vscode';
 import * as _file from './CreateFile';
 import * as _test from './CreateTest';
-import updateNamespace from './NamespaceUpdate';
 import CodeAction from './Providers/CodeAction';
 import CodeLens from './Providers/CodeLens';
 
@@ -35,8 +34,6 @@ export async function activate(context) {
         // providers
         vscode.languages.registerCodeLensProvider(['php'], new CodeLens()),
         vscode.languages.registerCodeActionsProvider(['php'], new CodeAction()),
-        // events
-        vscode.workspace.onDidRenameFiles(async (event: vscode.FileRenameEvent) => await updateNamespace(event)),
     );
 }
 

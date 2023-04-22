@@ -142,3 +142,8 @@
 ## 0.5.5
 
 - remove code refactor and move it to its own extension
+
+## 0.5.7
+
+- remove file move/rename refactor and move it to `ctf0.vscode-php-refactor` extension
+- remove `phpClassGenerator.updateFileAndReferenceOnRename` & `phpClassGenerator.enableCodeActions` configs

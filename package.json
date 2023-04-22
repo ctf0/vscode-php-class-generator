@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.5.6",
+    "version": "0.5.7",
     "publisher": "ctf0",
     "icon": "images/icon.png",
     "engines": {
@@ -171,16 +171,6 @@
                     "type": "boolean",
                     "default": true,
                     "description": "show go to test code lens"
-                },
-                "phpClassGenerator.enableCodeActions": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "enable code actions"
-                },
-                "phpClassGenerator.updateFileAndReferenceOnRename": {
-                    "type": "boolean",
-                    "default": true,
-                    "description": "update file content & its reference everywhere when renamed"
                 }
             }
         }
@@ -194,18 +184,16 @@
     },
     "devDependencies": {
         "@types/fs-extra": "^11.0.1",
-        "@types/node": "^18.15.11",
+        "@types/node": "^18.15.13",
         "@types/vscode": "^1.68.0",
-        "esbuild": "^0.17.15",
+        "esbuild": "^0.17.18",
         "typescript": "^5.0.4"
     },
     "dependencies": {
         "escape-string-regexp": "^5.0.0",
-        "fast-glob": "^3.2.12",
         "find-up": "^6.3.0",
         "fs-extra": "^11.1.1",
-        "pascal-case": "^3.1.2",
-        "replace-in-file": "^6.3.5"
+        "pascal-case": "^3.1.2"
     },
     "extensionDependencies": [
         "ctf0.php-namespace-resolver"

@@ -4,7 +4,7 @@ import * as utils from '../utils';
 
 export default class CodeAction implements vscode.CodeActionProvider {
     public async provideCodeActions(document: vscode.TextDocument, range: vscode.Range): Promise<vscode.CodeAction[] | undefined> {
-        if (!document || !utils.config.enableCodeActions) {
+        if (!document) {
             return;
         }
 

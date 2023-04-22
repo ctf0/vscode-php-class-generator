@@ -5,9 +5,6 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 - remove generate namespace command
 - remove vendor config
 - add make test command
-- support updating file/s namespace on `move/rename`
-    - glob exclude is populated from both `files.watcherExclude` & `search.exclude`
-    - make sure to run `composer dump-autoload` b4 deploying to update its files
 
 <br>
 
