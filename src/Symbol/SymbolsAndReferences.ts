@@ -26,6 +26,6 @@ export function extractClassOrInterface(symbols: vscode.DocumentSymbol[], includ
     });
 }
 
-export async function getFileSymbols(uri: vscode.Uri): Promise<vscode.DocumentSymbol[] | undefined> {
+export function getFileSymbols(uri: vscode.Uri) {
     return vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
 }

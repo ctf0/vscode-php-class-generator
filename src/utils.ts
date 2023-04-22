@@ -11,10 +11,6 @@ export function getFileNameFromPath(filePath) {
     return path.parse(filePath).name;
 }
 
-export function getFileExtFromPath(filePath) {
-    return path.parse(filePath).ext;
-}
-
 export function getDirNameFromPath(filePath) {
     return path.parse(filePath).dir;
 }
@@ -32,10 +28,6 @@ export function showMessage(msg, error = false, items: any = []) {
     return error
         ? vscode.window.showErrorMessage(`PHP Class Generator: ${msg}`, ...items)
         : vscode.window.showInformationMessage(`PHP Class Generator: ${msg}`, ...items);
-}
-
-export function showWarningMessage(msg, items: any = []) {
-    return vscode.window.showWarningMessage(`PHP Class Generator: ${msg}`, ...items);
 }
 
 export async function NsExtensionProviderInit() {
