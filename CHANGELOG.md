@@ -152,3 +152,7 @@
 
 - better lockup for the test files that actually relate to the opened file instead of a random one.
 - show file path in the codelens when hovered to avoid jumping to the wrong file
+
+## 0.6.1
+
+- a missed note for 060: the test folder name is now case-sensitive, this is needed to make sure we find the correct nearest files instead of going everywhere.

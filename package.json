@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.6.0",
+    "version": "0.6.1",
     "publisher": "ctf0",
     "icon": "images/icon.png",
     "engines": {
@@ -164,8 +164,8 @@
                 },
                 "phpClassGenerator.testFolderName": {
                     "type": "string",
-                    "default": "Tests",
-                    "description": "the folder name search is case-insensitive, so (tests or Tests) is the same"
+                    "default": "tests",
+                    "description": "the folder name search is case-sensitive"
                 },
                 "phpClassGenerator.showCodeLens": {
                     "type": "boolean",
