@@ -1,3 +1,4 @@
+import { findUp, pathExists } from 'find-up';
 import path from 'node:path';
 import * as vscode from 'vscode';
 
@@ -9,6 +10,12 @@ export let NS_EXTENSION_PROVIDER;
 
 export function getFileNameFromPath(filePath) {
     return path.parse(filePath).name;
+}
+
+export function getPathWithoutWs(filePath) {
+    const ws = vscode.workspace.workspaceFolders![0].uri.fsPath
+
+    return filePath.replace(ws, '').replace(/^\//, '');
 }
 
 export function getDirNameFromPath(filePath) {
@@ -61,4 +68,18 @@ export function hasStartOrEndIntersection(selections, DocumentSymbol): any {
             return item;
         }
     });
+}
+
+export async function getTestDirectoryPath(docPath: string) {
+    const testFolderName = config.testFolderName;
+
+    return await findUp(
+        async (directory) => {
+            return await pathExists(path.join(directory, testFolderName)) && directory;
+        },
+        {
+            cwd: getDirNameFromPath(docPath),
+            type: 'directory',
+        },
+    );
 }

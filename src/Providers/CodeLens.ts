@@ -1,4 +1,5 @@
 import escapeStringRegexp from 'escape-string-regexp';
+import groupBy from 'lodash.groupby';
 import path from 'node:path';
 import * as vscode from 'vscode';
 import * as helpers from '../Symbol/SymbolsAndReferences';
@@ -7,18 +8,27 @@ import * as utils from '../utils';
 export default class CodeLens implements vscode.CodeLensProvider {
     async provideCodeLenses(doc: vscode.TextDocument): Promise<vscode.CodeLens[]> {
         const links: any = [];
+        const ws = vscode.workspace.workspaceFolders![0].uri.fsPath
 
         if (!utils.config.showCodeLens || !doc) {
             return links;
         }
 
+        const fileName = doc.fileName;
+        let testDir: any = await utils.getTestDirectoryPath(fileName)
+
+        if (!testDir) {
+            return links
+        }
+
         const types = utils.config.testTypes.join('|');
         const pathTypes = utils.config.testTypes.map((item) => escapeStringRegexp(`${path.sep}${item}`)).join('|');
+        const cmnd = utils.PACKAGE_CMND_NAME;
 
         const symbols: vscode.DocumentSymbol[] | undefined = await helpers.getFileSymbols(doc.uri);
 
         if (symbols) {
-            const _classOrInterface: vscode.DocumentSymbol | undefined = await helpers.extractClassOrInterface(symbols, true);
+            const _classOrInterface: vscode.DocumentSymbol | undefined = helpers.extractClassOrInterface(symbols, true);
 
             if (_classOrInterface) {
                 const name = _classOrInterface.name;
@@ -26,21 +36,34 @@ export default class CodeLens implements vscode.CodeLensProvider {
 
                 // go to test
                 const testFileName = `${name}Test`;
-                const testFiles = await vscode.workspace.findFiles(`**/${testFileName}.php`);
+                testDir = utils.getPathWithoutWs(`${testDir}/${utils.config.testFolderName}`)
+                let testFiles = await vscode.workspace.findFiles(`${testDir}/**/${testFileName}.php`);
 
                 if (testFiles.length) {
-                    for (const file of testFiles) {
-                        const filePath = file.path;
+                    testFiles = testFiles.filter((file) => file.path.search(pathTypes) !== -1)
+                    const groups = groupBy(testFiles, (file) => file.path.match(types))
 
-                        if (filePath.search(pathTypes) !== -1) {
-                            const type = filePath.match(types);
+                    for (const [type, files] of Object.entries(groups)) {
+                        const msg = `$(debug-coverage) Go To Test (${type})`;
+
+                        if (files.length > 1) {
+                            links.push(
+                                new vscode.CodeLens(range, {
+                                    command: `${cmnd}.open_file_multi`,
+                                    title: msg,
+                                    arguments: [files, `${testDir}/${type}`],
+                                })
+                            );
+                        } else {
+                            const filePath = files[0].path;
 
                             links.push(
                                 new vscode.CodeLens(range, {
-                                    command   : `${utils.PACKAGE_CMND_NAME}.open_test_file`,
-                                    title     : `$(debug-coverage) Go To Test (${type})`,
-                                    arguments : [filePath],
-                                }),
+                                    command: `${cmnd}.open_file`,
+                                    title: msg,
+                                    tooltip: filePath,
+                                    arguments: [filePath],
+                                })
                             );
                         }
                     }
@@ -48,17 +71,44 @@ export default class CodeLens implements vscode.CodeLensProvider {
 
                 // go to class
                 if (name.endsWith('Test')) {
-                    const classFileName = name.replace(/Test$/, '');
-                    const classFiles = await vscode.workspace.findFiles(`**/${classFileName}.php`);
+                    let folderToSearch = utils
+                        .getDirNameFromPath(fileName)
+                        .replace(new RegExp(`/(${utils.config.testFolderName})(?!.*\b\u0001\b).*`, 'i'), '')
 
-                    if (classFiles.length) {
-                        links.push(
-                            new vscode.CodeLens(range, {
-                                command   : `${utils.PACKAGE_CMND_NAME}.open_test_file`,
-                                title     : '$(debug-disconnect) Go To Abstraction',
-                                arguments : [classFiles[0].path],
-                            }),
-                        );
+                    const classFileName = name.replace(/Test$/, '');
+                    let pattern = `**/${classFileName}.php`
+
+                    if (folderToSearch != ws) {
+                        folderToSearch = utils.getPathWithoutWs(folderToSearch)
+                        pattern = `${folderToSearch}/${pattern}`
+                    }
+
+                    const classFiles = await vscode.workspace.findFiles(pattern);
+                    const length = classFiles.length;
+
+                    if (length) {
+                        const msg = '$(debug-disconnect) Go To Abstraction';
+
+                        if (length > 1) {
+                            links.push(
+                                new vscode.CodeLens(range, {
+                                    command: `${cmnd}.open_file_multi`,
+                                    title: msg,
+                                    arguments: [classFiles, folderToSearch],
+                                })
+                            );
+                        } else {
+                            const filePath = classFiles[0].path;
+
+                            links.push(
+                                new vscode.CodeLens(range, {
+                                    command: `${cmnd}.open_file`,
+                                    title: msg,
+                                    tooltip: filePath,
+                                    arguments: [filePath],
+                                })
+                            );
+                        }
                     }
                 }
             }

@@ -27,4 +27,13 @@ based on https://marketplace.visualstudio.com/items?itemName=damianbal.vs-phpcla
 3. the test file will be created with the original class hierarchy ex.`.../Tests/{TestType}/Services/Taxes/EmployeeTaxTest.php`
 4. if file already exists it will be opened instead
 5. for the `Go To Test` codelens to show up, the class test file must be `className + Test` ex.`EmployeeTaxTest`
-    - the search for the file is project wide, regardless of the folder hierarchy
+
+> PS 🔺
+
+the navigation between the class to its test & vice-versa doesnt follow anything other than the name of the class to connect the dots,
+which means if you have multiple classes with the same name in both ways `class & test` you might get directed to the wrong file,
+so to use this feature the names have to be as unique as possible,
+
+however, the codelens now have the support to
+  - showing the file path on hover
+  - for multi files you will get a QuickPick to choose from

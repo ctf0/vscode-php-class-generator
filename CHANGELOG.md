@@ -147,3 +147,8 @@
 
 - remove file move/rename refactor and move it to `ctf0.vscode-php-refactor` extension
 - remove `phpClassGenerator.updateFileAndReferenceOnRename` & `phpClassGenerator.enableCodeActions` configs
+
+## 0.6.0
+
+- better lockup for the test files that actually relate to the opened file instead of a random one.
+- show file path in the codelens when hovered to avoid jumping to the wrong file

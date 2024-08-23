@@ -2,11 +2,11 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.5.8",
+    "version": "0.6.0",
     "publisher": "ctf0",
     "icon": "images/icon.png",
     "engines": {
-        "vscode": "^1.68.0"
+        "vscode": "^1.80.0"
     },
     "categories": [
         "Other"
@@ -183,17 +183,18 @@
         "watch": "npm run esbuild"
     },
     "devDependencies": {
-        "@types/fs-extra": "^11.0.1",
-        "@types/node": "^18.15.13",
-        "@types/vscode": "^1.68.0",
-        "esbuild": "^0.17.18",
-        "typescript": "^5.0.4"
+        "@types/fs-extra": "^11.0.4",
+        "@types/node": "^22.5.0",
+        "@types/vscode": "^1.80.0",
+        "esbuild": "^0.23.1",
+        "typescript": "^5.5.4"
     },
     "dependencies": {
         "escape-string-regexp": "^5.0.0",
-        "find-up": "^6.3.0",
-        "fs-extra": "^11.1.1",
-        "pascal-case": "^3.1.2"
+        "find-up": "^7.0.0",
+        "fs-extra": "^11.2.0",
+        "lodash.groupby": "^4.6.0",
+        "pascal-case": "^4.0.0"
     },
     "extensionDependencies": [
         "ctf0.php-namespace-resolver"

@@ -1,5 +1,3 @@
-import { findUp, pathExists } from 'find-up';
-import path from 'node:path';
 import * as vscode from 'vscode';
 import * as _file from './CreateFile';
 import * as utils from './utils';
@@ -10,8 +8,8 @@ export async function createTest(e) {
     const selectedTestTypes = await vscode.window.showQuickPick(
         utils.config.testTypes,
         {
-            placeHolder : 'choose what types of tests you want to create',
-            canPickMany : true,
+            placeHolder: 'choose what types of tests you want to create',
+            canPickMany: true,
         },
     );
 
@@ -21,14 +19,7 @@ export async function createTest(e) {
         if (docPath) {
             const docName = utils.getFileNameFromPath(docPath);
             const docDir = utils.getDirNameFromPath(docPath);
-
-            const testDir: any = await findUp(
-                async (directory) => await pathExists(path.join(directory, testFolderName)) && directory,
-                {
-                    cwd  : docDir,
-                    type : 'directory',
-                },
-            );
+            const testDir: any = await utils.getTestDirectoryPath(docPath)
 
             if (testDir) {
                 const type = 'class';

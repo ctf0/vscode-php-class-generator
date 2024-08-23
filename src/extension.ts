@@ -30,7 +30,22 @@ export async function activate(context) {
         vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.generate_enum`, async (folder) => await createFile(folder, 'enum')),
         vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.generate_test_for_file`, async (e) => await _test.createTest(e)),
         // open
-        vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.open_test_file`, async (path) => await utils.openFile(path)),
+        vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.open_file`, async (path) => await utils.openFile(path)),
+        vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.open_file_multi`, async (files, folderToSearch) => {
+            await vscode.window.showQuickPick(
+                files.map((file: any) => ({
+                    label: file.path.replace(new RegExp(`.*${folderToSearch}\/`), ''),
+                    detail: file.path,
+                })),
+                {
+                    placeHolder: 'select file to open',
+                },
+            ).then(async (selection: any) => {
+                if (selection) {
+                    await utils.openFile(selection.detail);
+                }
+            });
+        }),
         // providers
         vscode.languages.registerCodeLensProvider(['php'], new CodeLens()),
         vscode.languages.registerCodeActionsProvider(['php'], new CodeAction()),
