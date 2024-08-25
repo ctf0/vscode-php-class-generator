@@ -156,3 +156,7 @@
 ## 0.6.1
 
 - a missed note for 060: the test folder name is now case-sensitive, this is needed to make sure we find the correct nearest files instead of going everywhere.
+
+## 0.6.2
+
+- allow to open multiple files at once

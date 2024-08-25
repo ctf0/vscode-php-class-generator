@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as helpers from '../Symbol/SymbolsAndReferences';
-import * as utils from '../utils';
+import * as helpers from '../Helpers/SymbolsAndReferences';
+import * as utils from '../Helpers/utils';
 
 export default class CodeAction implements vscode.CodeActionProvider {
     public async provideCodeActions(document: vscode.TextDocument, range: vscode.Range): Promise<vscode.CodeAction[] | undefined> {

@@ -2,8 +2,8 @@ import escapeStringRegexp from 'escape-string-regexp';
 import groupBy from 'lodash.groupby';
 import path from 'node:path';
 import * as vscode from 'vscode';
-import * as helpers from '../Symbol/SymbolsAndReferences';
-import * as utils from '../utils';
+import * as helpers from '../Helpers/SymbolsAndReferences';
+import * as utils from '../Helpers/utils';
 
 export default class CodeLens implements vscode.CodeLensProvider {
     async provideCodeLenses(doc: vscode.TextDocument): Promise<vscode.CodeLens[]> {

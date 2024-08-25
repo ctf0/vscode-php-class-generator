@@ -1,6 +1,6 @@
 import * as vscode from 'vscode';
-import * as _file from './CreateFile';
-import * as utils from './utils';
+import * as utils from '../Helpers/utils';
+import * as _file from './File';
 
 export async function createTest(e) {
     const testFolderName = utils.config.testFolderName;

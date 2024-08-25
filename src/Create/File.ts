@@ -1,7 +1,7 @@
 import fs from 'fs-extra';
 import { pascalCase } from 'pascal-case';
 import * as vscode from 'vscode';
-import * as utils from './utils';
+import * as utils from '../Helpers/utils';
 
 async function generateCode(filePath, prefix) {
     const cn = pascalCase(utils.getFileNameFromPath(filePath));
@@ -43,8 +43,8 @@ export async function createFile(path, type, fileName: any = null) {
 
     if (!name) {
         name = await vscode.window.showInputBox({
-            placeHolder : `Name ex.MyNew${type}`,
-            prompt      : `Name of ${type}`,
+            placeHolder: `Name ex.MyNew${type}`,
+            prompt: `Name of ${type}`,
         });
 
         if (!name) {
