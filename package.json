@@ -2,7 +2,7 @@
     "name": "php-class-generator",
     "displayName": "PHP Class Generator",
     "description": "Generate class/interface/trait/enum/test out of file path",
-    "version": "0.6.2",
+    "version": "0.6.3",
     "publisher": "ctf0",
     "icon": "images/icon.png",
     "engines": {

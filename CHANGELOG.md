@@ -160,3 +160,7 @@
 ## 0.6.2
 
 - allow to open multiple files at once
+
+## 0.6.3
+
+- sometimes a test could be found but not under any of the test types, now we have support for that as well

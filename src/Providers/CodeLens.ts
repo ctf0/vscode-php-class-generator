@@ -37,35 +37,49 @@ export default class CodeLens implements vscode.CodeLensProvider {
                 // go to test
                 const testFileName = `${name}Test`;
                 testDir = utils.getPathWithoutWs(`${testDir}/${utils.config.testFolderName}`)
-                let testFiles = await vscode.workspace.findFiles(`${testDir}/**/${testFileName}.php`);
+                const testFiles = await vscode.workspace.findFiles(`${testDir}/**/${testFileName}.php`);
 
                 if (testFiles.length) {
-                    testFiles = testFiles.filter((file) => file.path.search(pathTypes) !== -1)
-                    const groups = groupBy(testFiles, (file) => file.path.match(types))
+                    const testFilesFilter = testFiles.filter((file) => file.path.search(pathTypes) !== -1)
 
-                    for (const [type, files] of Object.entries(groups)) {
-                        const msg = `$(debug-coverage) Go To Test (${type})`;
+                    if (testFilesFilter.length) {
+                        const groups = groupBy(testFilesFilter, (file) => file.path.match(types))
 
-                        if (files.length > 1) {
-                            links.push(
-                                new vscode.CodeLens(range, {
-                                    command: `${cmnd}.open_file_multi`,
-                                    title: msg,
-                                    arguments: [files, `${testDir}/${type}`],
-                                })
-                            );
-                        } else {
-                            const filePath = files[0].path;
+                        for (const [type, files] of Object.entries(groups) as [any, any]) {
+                            const msg = `$(debug-coverage) Go To Test (${type})`;
 
-                            links.push(
-                                new vscode.CodeLens(range, {
-                                    command: `${cmnd}.open_file`,
-                                    title: msg,
-                                    tooltip: filePath,
-                                    arguments: [filePath],
-                                })
-                            );
+                            if (files.length > 1) {
+                                links.push(
+                                    new vscode.CodeLens(range, {
+                                        command: `${cmnd}.open_file_multi`,
+                                        title: msg,
+                                        arguments: [files, `${testDir}/${type}`],
+                                    })
+                                );
+                            } else {
+                                const filePath = files[0].path;
+
+                                links.push(
+                                    new vscode.CodeLens(range, {
+                                        command: `${cmnd}.open_file`,
+                                        title: msg,
+                                        tooltip: filePath,
+                                        arguments: [filePath],
+                                    })
+                                );
+                            }
                         }
+                    } else {
+                        const filePath = testFiles[0].path;
+
+                        links.push(
+                            new vscode.CodeLens(range, {
+                                command: `${cmnd}.open_file`,
+                                title: `$(debug-coverage) Go To Test`,
+                                tooltip: filePath,
+                                arguments: [filePath],
+                            })
+                        );
                     }
                 }
 

@@ -26,6 +26,6 @@ export function extractClassOrInterface(symbols: vscode.DocumentSymbol[], includ
     });
 }
 
-export function getFileSymbols(uri: vscode.Uri) {
+export function getFileSymbols(uri: vscode.Uri): any {
     return vscode.commands.executeCommand('vscode.executeDocumentSymbolProvider', uri);
 }
