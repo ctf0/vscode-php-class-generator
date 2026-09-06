@@ -34,8 +34,8 @@ export async function activate(context) {
         vscode.commands.registerCommand(`${utils.PACKAGE_CMND_NAME}.open_file_multi`, async(files, folderToSearch) => {
             await vscode.window.showQuickPick(
                 files.map((file: any) => ({
-                    label  : file.path.replace(new RegExp(`.*${folderToSearch}\/`), ''),
-                    detail : file.path,
+                    label    : vscode.workspace.asRelativePath(file.path).replace(new RegExp(`.*${folderToSearch}\/`), ''),
+                    filePath : file.path,
                 })),
                 {
                     placeHolder : 'select file to open',
@@ -43,7 +43,7 @@ export async function activate(context) {
                 },
             ).then((selections: any) => {
                 if (selections && selections.length) {
-                    selections.map(async(item) => await utils.openFile(item.detail))
+                    selections.map(async(item) => await utils.openFile(item.filePath))
                 }
             })
         }),
